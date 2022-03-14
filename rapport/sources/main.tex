@@ -20,7 +20,7 @@
  {\vspace{10mm}}
  {\includegraphics[width=0.6\textwidth]{images/télécharger.png}}
  }
- \author{\textbf{Professeur accompagnant:} M. X\\\textbf{Cahier des besoins rédigé par:} \\Alexey Zhukov, Tony Wolff, Baptiste Bedouret, \\Alexis Marec, Antoine Fredefon, Thomas Mercier}
+ \author{\textbf{Professeur accompagnant:} M. Mansencal\\\textbf{Cahier des besoins rédigé par:} \\Alexey Zhukov, Tony Wolff, Baptiste Bedouret, \\Alexis Marec, Antoine Fredefon, Thomas Mercier}
 
 \date{02/03/2022}
 
@@ -56,20 +56,34 @@
 
 % Faire une intro sur le développement des algos de génération procédurale, et surtout sur l'importance de l'optimisation de ceux-ci pour le rendu temps-réel (jeux-vidéo, simulation).
 
-La génération procédurale de planètes est un problème complexe qui requiert des compétences dans des domaines variés, notamment pour modéliser la sphère avec des niveaux de détails variables en fonction de la résolution demandée. Dans le cadre de ce projet, la carte de la planète sera générée au vol par un ou plusieurs algorithmes conseillés par le sujet. Notre première étape consiste donc à trouver, comprendre et utiliser une bibliothèque de bruit de Perlin ou bruit de Simplex pour générer une heightmap. La principale difficulté de cette étape sera de génerer des cartes sphériques.
+La génération procédurale de planètes est un problème complexe qui requiert des compétences dans des domaines variés, notamment pour modéliser la sphère avec des niveaux de détails variables en fonction de la résolution demandée. Dans le cadre de ce projet, la carte de hauteur de la planète sera générée au vol par un ou plusieurs algorithmes conseillés par le sujet. Cette carte, couramment appellée heightmap, représente en chaque point la distance séparant un sommet et le centre de la planète. Notre première étape consiste donc à trouver, comprendre et utiliser une bibliothèque pour générer des heightmaps de manière procédurale. La principale difficulté de cette étape sera de génerer des cartes sphériques simulant la surface d'une planète.
 
-Dans un second temps, notre objectif sera de créer une bibliothèque permettant le stockage et la génération de la heightmap d'une planète (carte de hauteur représentant les variations du terrain) utilisant les principes de niveaux de détails. Les algorithmes et les bibliothèques que nous allons étudier puis mettre en oeuvre servent à modéliser ces heightmaps de manière efficace, mais aussi à réguler la quantité de sommets à tracer lors du rendu graphique.
+Dans un second temps, notre objectif sera de créer une bibliothèque permettant le stockage de la heightmap d'une planète en utilisant les principes de niveau de détail (Level of Detail ou LOD). En effet, les algorithmes de LOD permettent de sauvegarder les cartes dans différents niveaux de précision que nous pouvons contrôler. Les algorithmes que nous allons étudier puis mettre en oeuvre permettront alors de stocker la heightmap de manière optimale pour faire du LOD, c'est à dire réguler la quantité de sommets à tracer selon la distance entre le maillage et l'observateur.
 
-Enfin, dans le but de visualiser la planète, nous devrons développer un outil de visualisation simple utilisant la bibliothèque OpenGL. En plus de donner un aperçu de la planète (et donc de la qualité de la heightmap générée), cet outil permettra à l'utilisateur de se déplacer dans la scène pour faire apparaître les différents niveaux de détail du maillage.
+Enfin, dans le but d'afficher la planète, nous devrons développer un outil de visualisation simple utilisant la bibliothèque OpenGL. En plus de donner un aperçu de la planète (et donc de la qualité de la heightmap générée), cet outil permettra à l'utilisateur de se déplacer dans la scène pour faire apparaître les différents niveaux de détail de la surface.
 
-Dans l'ensemble, cet outil permettra de générer la carte de hauteur d'une planète de manière procédurale, de la stocker dans une structure adaptée pour effectuer du LOD, et enfin de la visualiser dans une fenêtre OpenGL comme nous pouvons le voir sur la figure 1.1.
+Dans l'ensemble, cet outil permettra de générer la carte de hauteur d'une planète de manière procédurale, de la stocker dans une structure adaptée pour effectuer du LOD, et enfin de la visualiser dans une fenêtre OpenGL comme nous pouvons le voir sur la figure 1.1 et 1.2. 
+
 
 \vspace{0.3cm}
 
  \begin{figure}[h]
 \centering
+\begin{center}
 \includegraphics[scale = 0.4]{images/Capture d’écran du 2022-03-05 15-46-04.png}
 \caption{Exemple de visualisation de la surface de la lune}
+\source{https://dept-info.labri.fr/~narbel/PdP/Subjects21-22/CLOD-Planets/Planet_Rendering.pdf}
+\end{center}
+\end{figure}
+
+\begin{figure} [ht]
+  \centering
+  \begin{center}
+  \includegraphics[scale = 0.4]{images/Capture d’écran du 2022-03-14 22-35-11.png}
+  \caption{Exemple de visualisation de la surface de la lune}
+  \source{https://dept-info.labri.fr/~narbel/PdP/Subjects21-22/CLOD-Planets/Planet_Rendering.pdf}
+  \label{fig:gliederung}
+  \end{center}
 \end{figure}
 
 \newpage
@@ -88,6 +102,7 @@ Une bibliothèque de génération de bruit sera utile pour la création d'une he
     \centering
     \includegraphics[scale = 0.05]{images/planet.jpg}
     \caption{texture d'une planète}
+    \source{http://libnoise.sourceforge.net/examples/complexplanet/index.html}
     \end{figure}
  
     Elle précise bien que ce n'est pas un outil de rendu et qu'il faudra utiliser une autre bibliothèque ou notre propre code pour générer une image, elle propose l'utilisation de \textbf{noiseutils} qui sauve le désagrément décrire des classes telles que le remplissage de noise map (tableau 2D qui a vocation à recevoir les valeurs générées par les modules de bruit), des builders associés à ces noise map pour des objets mathématiques utiles comme la sphère dans notre cas, des classes pour sérialiser une image ou une noise map, et des classes pour créer des images bien entendu. 
@@ -131,7 +146,20 @@ Une bibliothèque de génération de bruit sera utile pour la création d'une he
 
 Dans un premier temps, nous avons étudié l'article de Filip Strugar \textit{Continuous Distance-Dependent Level of Detail for Rendering Heightmaps}\textbf{\cite{FStrugar}}. Bien que paru en 2010, cet article permet de comprendre plus en détail comment représenter une heightmap sous forme de quadtree (arbre quaternaire dont les particularités sont expliquées plus bas) et ainsi utiliser cette structure de données pour créer l'algorithme de rendu de heightmaps CDLOD.
 
-Un quadtree ou arbre quaternaire est un arbre dont chaque noeud dispose au maximum de quatre enfants. Cette représentation est particulièrement utile pour effectuer une subdivision d'un espace en deux dimensions. En effet, une image 2D par exemple peut être partitionnée en quatre quadrants de tailles égales, comprenant chacun l'information de ce quart d'image. Puis, chaque quadrant peut être lui aussi subdivisé en quatre, et ainsi de suite tant que des éléments peuvent être distingués dans celui-ci. Un bon moyen de visualiser le processus de création d'un quadtree est l'application interactive \textbf{quadtreevis}\footnote{https://jimkang.com/quadtreevis/}, permettant de visualiser la division de l'image de base ainsi que les noeuds de l'arbre associé.
+Un quadtree ou arbre quaternaire est un arbre dont chaque noeud dispose au maximum de quatre enfants. Cette représentation est particulièrement utile pour effectuer une subdivision d'un espace en deux dimensions. En effet, une image 2D par exemple peut être partitionnée en quatre quadrants de tailles égales, comprenant chacun l'information de ce quart d'image. Puis, chaque quadrant peut être lui aussi subdivisé en quatre, et ainsi de suite tant que des éléments peuvent être distingués dans celui-ci. Le critère sera le nombre maximum de triangles autorisés dans un quadrant . La valeur maximale sera fixée à 10 000, de sorte que chaque quadrilatère continuera à être divisé jusqu'à ce qu'il contienne moins de 10 000 triangles.  Un bon moyen de visualiser le processus de création d'un quadtree est l'application interactive \textbf{quadtreevis}\footnote{https://jimkang.com/quadtreevis/}, permettant de visualiser la division de l'image de base ainsi que les noeuds de l'arbre associé.
+
+\subsection{Description de l'algorithme quadtree}
+Dans ce projet nous allons utiliser cet algorithme pour pouvoir afficher un niveau de subdivisions du maillage de la surface. Sur le site web \footnote{https://www.rastertek.com/tertut05.html} nous avons trouvé un exemple de code détaillé sur l'algorithme quadtree qui explique comment créer cela.
+
+Pour illustrer le fonctionnement de l'algorithme de l'arbre, nous commençons par un quadruple qui englobe la totalité du terrain.
+ Puis nous le divisons en quatre quadrants et vérifions si chacun de ces quadrants contient plus de 10 000 triangles ou non. Si le quadrilatère contient plus de 10 000 triangles, nous le divisons en quatre quadrilatères de taille égale et nous vérifions à nouveau si chacun des quatre nouveaux quadrilatères contient moins de 10 000 triangles ou non. Ainsi de suite. Une fois que chaque quadrilatère de l'arbre entier contient moins de 10 000 triangles, nous avons fini de diviser le terrain en sections. Maintenant, pour chaque quadrant, nous déterminons quels triangles lui appartiennent. Nous pouvons représenter cela sous forme de diagramme. Voir figure 2.5. L'algorithme utilise le noeud supérieur de l'arbre pour représenter l'ensemble du terrain. Le deuxième niveau représente les quatre premiers quadrants ainsi de suite jusqu'à ce qu'il réponde aux critères de division ou non de chaque quadrant.
+
+Par la suite,on crée une classe pour générer un quadtree on utilise une structure qui prend en charge le stockage et le rendu des informations sur les sommets du terrain.
+Ensuite, il faut générer une structure de données utilisée pour la gestion du terrain procédural. Chaque nœud de l'arbre quadruple sera défini comme suit : position, taille, nombre de triangles, tampons et quatre nœuds enfants.
+La classe aura besoin d'une liste des sommets et le noeud parent pour construire le quadtree de manière récursive.
+
+
+\subsection{Description de l'algorithme CDLOD}
 
 Pour appliquer ce principe au stockage de heightmap, l'algorithme CDLOD pose la contrainte suivante : La profondeur à laquelle nous nous trouvons dans le quadtree correspond toujours au niveau de détail. En d'autres termes, le noeud le plus élevé de l'arbre correspond au niveau de détail le plus bas, et chaque fils comprendra quatre fois plus d'informations (ici des triangles) que les noeuds de l'étage précédent. La figure suivante, tirée de l'article, représente la division d'une heightmap en 4 niveaux de détail : Du moins détaillé (LOD 3) au plus détaillé (LOD 0).
 
@@ -141,6 +169,7 @@ Pour appliquer ce principe au stockage de heightmap, l'algorithme CDLOD pose la 
 \centering
 \includegraphics[scale = 0.8]{images/CDLOD1.png}
 \caption{Niveaux de détails sur un quadtree}
+\source{https://dept-info.labri.fr/~narbel/PdP/Subjects21-22/CLOD-Planets/cdlod_latest.pdf}
 \end{figure}
 
 \newpage
@@ -163,6 +192,7 @@ Au final, nous aurons à chaque frame du rendu une carte divisée en niveaux de 
 \centering
 \includegraphics[scale = 0.6]{images/CDLOD2.PNG}
 \caption{carte découpée en LOD}
+\source{https://dept-info.labri.fr/~narbel/PdP/Subjects21-22/CLOD-Planets/cdlod_latest.pdf}
 \end{figure}
 
 
@@ -171,14 +201,6 @@ Bibliothèque de gestion de quadtrees : https://github.com/dfriend21/quadtree
 \newpage
 
 \chapter{Description des besoins}
-
-\section{Génération de heightmaps}
-
-\textbf{Besoins fonctionnels}
-
-\textbf{Besoins non-fonctionnels}
-
-\newpage
 
 \section{Niveau de détail}
 
@@ -194,7 +216,62 @@ Bibliothèque de gestion de quadtrees : https://github.com/dfriend21/quadtree
         \item Enfin, chaque noeud sélectionné doit être stocké dans une structure de données temporaire qui doit contenir sa position dans la scène, sa taille et son niveau de détail. D'autres informations peuvent y être ajoutées si elles sont nécessaires au rendu graphique.
     \end{enumerate}
     
-    \item \textbf{Communication avec le module de rendu} : Comme nous pouvons le constater, les modules vont échanger une grande quantité d'informations et ce possiblement à chaque frame du rendu. 
+    \item \textbf{Communication avec le module de rendu} : Comme nous pouvons le constater, les modules vont échanger une grande quantité d'informations et ce possiblement à chaque frame du rendu.
+    
+    \item \textbf{Visualisation OpenGL} :
+    \begin{enumerate}
+        \item \textbf{Fenêtre de visualisation} : 
+            Création par programmation d'une fenêtre de visualisation qui interagit avec un objet de heightmap. La première étape pour utiliser OpenGL est de créer un context et généralement une fenêtre associée capable d'afficher un rendu OpenGL. Ces deux tâches seront effectuées par la bibliothèque GLFW. 
+            \begin{itemize}
+                \item \textbf{GLFW} est une bibliothèque Open Source multiplateforme pour le développement OpenGL sur le bureau. Il fournit une API simple pour créer des fenêtres, des contextes et des surfaces, recevoir des entrées et des événements.
+            \end{itemize}
+            \begin{figure}[h]
+                \centering
+                \includegraphics[scale = 0.5]{images/Exemple_de_fenêtre_de_visualisation_WSL2_XLaunch.png}
+                \caption{Exemple de fenêtre de visualisation. WSL2. XLaunch.}
+            \end{figure}
+        \item \textbf{Création de la fonctionnalité nécessaire et intégration de l'existant pour un fonctionnement pratique de base} :
+        Dans cette partie, nous allons utiliser deux bibliothèques : Eigen et Glbinding. 
+        \begin{itemize}
+            \item \textbf{Eigen} est une bibliothèque C++ d'algèbre linéaire. Elle sera utilisée pour la représentation et manipulation de matrices, vecteurs, transformations géométriques et résolution de systèmes d'équations.
+            \item \textbf{Glbinding} exploite des fonctionnalités C++ 11 telles que les classes enum, les lambdas et les modèles variadiques, au lieu de s'appuyer sur des macros ; tous les symboles OpenGL sont de véritables fonctions et variables. Il fournit des paramètres de sécurité de type, des en-têtes d'API par fonctionnalité, une résolution de fonction paresseuse, une prise en charge multi-contextes et multi-threads, des rappels de fonctions globaux et locaux, des méta-informations sur la liaison OpenGL générée et le runtime OpenGL, ainsi que des outils et des exemples.
+        \end{itemize}
+        \item \textbf{Initialisation de la caméra} : 
+        La portée de vue de la caméra et sa position décident des nœuds à dessiner et de la profondeur de la cascade des nœuds. Les nœuds les plus proches de la caméra sont en cascade jusqu'aux nœuds feuilles, dessinant une géométrie plus dense. La fonctionnalité de la caméra consiste à déplacer l'utilisateur sur une zone ou à modifier la distance de rendu d'un objet à l'aide des boutons. 
+        \begin{itemize}
+            \item PAGE UP : S'éloigner de l'objet
+            \item PAGE DOWN : Se rapprocher de l'objet
+            \item KEY UP : Tourner la caméra vers le haut
+            \item KEY DOWN : Tourner la caméra vers le bas
+            \item KEY LEFT : Tourner la caméra à gauche
+            \item KEY RIGHT : Tourner la caméra à droite
+            \item KEY W : définir le mode wireframe
+            \item KEY E : activer / désactiver les mesh edges
+            \item KEY + et KEY - : pour définir la plage de vues quadtree
+        \end{itemize}
+        
+        \begin{figure}[h]
+            \centering
+            \includegraphics[scale = 0.7]{images/mesh_edges.png}
+            \caption{Exemple de mesh edges.}
+            \source{https://github.com/drecuk/QuadtreeTerrain}
+        \end{figure}
+         \begin{figure}[h]
+            \centering
+            \includegraphics[scale = 0.7]{images/view_quadtree.png}
+            \caption{Exemple de visualisation d'un Quadtree en mode wireframe}
+            \source{https://github.com/drecuk/QuadtreeTerrain}
+        \end{figure}
+        \item \textbf{Créer une boîte à outils pour travailler avec des objets} :
+        Après avoir traité le heightmap, il doit être installé sur la sphère. Les bibliothèques ObjFormat et tinyobjloader seront utilisées pour cela.
+        \begin{itemize}
+            \item \textbf{tinyobjloader et ObjFormat} sont des bibliothèques pour charger des maillages au format Wavefront OBJ.
+        \end{itemize}
+        \item \textbf{Chargement du RAW bitmap} :
+        Le remplissage de la structure de données avec les données RAW bitmap de 8 bits pour chaque élément du tableau. Ce sont ces données qui seront utilisées pour visualiser le heightmap.
+        \item \textbf{Implémentation logicielle de CDLOD} :
+        La supclasse crée et maintient une structure quadtree. Chaque noeud de cette structure est décrit par la structure de noeud. ID et ParentID associent le noeud actuel au parent, et l'index de branche enregistre les ID des nœuds enfants. Ceci décrit les points à partir desquels les quads OpenGL sont construits (surface du terrain). Chaque nœud a 3 x 3 sommets, que notre constructeur utilise pour dessiner des triangles.
+    \end{enumerate}
 \end{enumerate}
 
 \vspace{0.3cm}
@@ -203,99 +280,36 @@ Bibliothèque de gestion de quadtrees : https://github.com/dfriend21/quadtree
 
 \textbf{Taille des données en mémoire} : L'implémentation pratique d'un logiciel de rendu de terrain doit tenir compte de la taille de ce dernier. Ici, il y a deux facteurs principaux à prendre en compte :
 \begin{enumerate}
-    \item \textbf{Les données de terrain} : Pour ne pas garder la totalité des données de la heightmap en mémoire, celle-ci peut-être divisée en blocks représentants les morceaux de terrain potentiellement visibles par l'observateur. Ces fragments peuvent être transmis sous forme de data-stream pendant le rendu. Cette méthode est d'autant plus efficace que l'algorithme CDLOD effectue déjà une sélection des blocks lors du calcul de LOD. \newpage
+    \item \textbf{Les données de terrain} : Pour ne pas garder la totalité des données de la heightmap en mémoire, celle-ci peut-être divisée en blocks représentants les morceaux de terrain potentiellement visibles par l'observateur. Ces fragments peuvent être transmis sous forme de data-stream pendant le rendu. Cette méthode est d'autant plus efficace que l'algorithme CDLOD effectue déjà une sélection des blocks lors du calcul de LOD. 
     \item \textbf{Les données du quadtree} : Plus volumineux encore, les noeuds du quadtree contiennent des détails tels que la taille, la position, les voisins du noeud, etc... beaucoup d'informations qui peuvent être superflues pour l'étape de rendu. La version StreamingCDLOD de l'algorithme présenté dans le chapitre 2.2 évite ce problème en ne gardant que les valeurs minimales et maximales de la surface couverte par le noeud, qui sont stockées dans une matrice 2x2 pour chaque noeud. Le reste des données est automatiquement généré lors du parcours du quadtree.
+    \item \textbf{Performance}: Le temps de traitement du programme ne dépasse pas quelques minutes.
+    \item \textbf{Passage à l'échelle} : Lors de la création du quadtree ou dans la phase de rendu, s'assurer que le programme puisse gérer des heightmaps très grandes et très détaillées.
+    \item \textbf{Visualisation OpenGL} :
+    \begin{enumerate}
+        \item \textbf{Performance:}
+        \begin{enumerate}
+            \item Le temps de traitement du programme ne dépasse pas quelques minutes.
+            \item Garder un affichage fluide de rendu de heightmap.
+        \end{enumerate}
+            \item \textbf{Contraintes et difficulté techniques:}
+            \begin{enumerate}
+                \item Surface sphérique. L'ordinateur doit générer un maillage de base convexe pendant la génération du terrain.
+                \item Utiliser un maillage de triangle équilatéraux plutôt que d'autres polygones.
+            \end{enumerate}
+        \item \textbf{Portabilité:}
+        \begin{enumerate}
+            \item Utiliser une machine contenant une carte graphique avec une version d'openGL de préférence openGL 3.3.
+            \item Ajouter le contrôle de la molette de la souris au lieu de boutons, pour un contrôle plus facile de la caméra.
+        \end{enumerate}
+        \item \textbf{Contraintes d'affichage:}
+        \begin{enumerate}
+            \item Faire des tests pour pouvoir afficher un nombre conséquents de triangles.
+            \item Récupérer la taille totale et restante de la mémoire du GPU avec GL NVX gpu memory info.
+        \end{enumerate}
+    \end{enumerate}
 \end{enumerate}
 
 Enfin, il est possible de compresser d'une part les heightmaps, et d'autre part les données des noeuds les plus détaillés du quadtree, en stockant les valeurs de la matrice min/max du noeud dans l'espace inutilisé de la matrice du noeud parent avec une faible perte de précision.
-
-\section{Visualisation OpenGL}
-
-\textbf{Besoins fonctionnels}
-    \begin{enumerate}
-        \item \textbf{Créer une boîte à outils pour travailler avec quadtree } : 
-        Un nœud dans un quadtree est un plan simple à l'intérieur duquel se trouve un certain nombre de sommets. Si ce plan croise notre pyramide de vue, il est nécessaire de rendre les sommets à l'intérieur de ce plan. Si un plan a des nœuds enfants à l'intérieur, il ne contient pas de sommets. Les sommets contiennent soit ses nœuds enfants, soit à leur tour leurs nœuds enfants, etc. cette récursivité peut durer aussi longtemps que nous atteignons la valeur maximale de la récursivité, ou le nombre de triangles ne devient pas inférieur au nombre maximum de triangles pour chaque nœud. Après avoir atteint ces valeurs, le nœud arrête la division.
-        \item \textbf{Frustum Culling (Rendu uniquement des polygones visibles) } : Frustum est une pyramide de vue. Son sommet est la position de la caméra. Ses plans passent à travers les côtés de l'écran du moniteur. Tout ce qui ne tombe pas dans cette pyramide n'a pas â être dessiné car les sommets ne sont pas dans le champs de vision de la caméra.
-        \item \textbf{Créer un objet volumétrique (sphère) avec une carte heightmap } :
-        Étant donné que la planète est utilisée comme objet, il faut créer une fonction pour réaliser un placage sphérique.
-        \item \textbf{Intéraction utilisateur} :
-        \begin{enumerate}
-            \item Pouvoir utiliser les flèches du clavier pour se déplacer dans la scène.
-            \item Pouvoir utiliser la souris pour zoomer et appliquer une rotation à la planète.
-            \item Ajouter un menu ou des raccourcis claviers pour les options telles que : quitter, mettre en pause ou encore afficher des informations système (nombre de sommets, Images par secondes)
-        \end{enumerate}
-    \end{enumerate}
-    
-\newpage
-
-\textbf{Besoins non-fonctionnels}
-    \begin{enumerate}
-        \item \textbf{Optimisation du quadtree :}
-            \begin{enumerate}
-                \item Le nombre maximal de triangles dans un nœud peut dépendre de la taille de la scène. Si elle est trop petite, le programme peut ralentir, car il est nécessaire de traiter des milliers de nœuds. Il est optimal de commencer à environ 1000, puis de changer la valeur jusqu'à ce qu'il y ait une meilleure option.
-            \end{enumerate}
-    \end{enumerate}
-
-\section{Besoins Fonctionnels}
-
-\begin{enumerate}
- \item Générer une technique de rendu de heightmap d'une surface:
-    \begin{enumerate}
-        \item  Dans ce cas utiliser l'algorithme CDLOD pour pouvoir garder un niveau de subdivisions du maillage (quadtree) de la sphère à un niveau de détail qui se régule en fonction de la distance au sol. En effet, on utilise un quadtree qui va créer un sous ensemble de noeuds affichables à l'écran et va parcourir l'arbre du niveau de détail le moins élevé au plus élevé. Les données des noeuds sont utiles au rendu de la parcelle de terrain visible.
-        
-        \item Implémenter et tester plusieurs calculs de distance pour s'adapter à la surface sphérique.
-        
-        \item Nombre constant de sommets affichés à l'écran:
-        calcul de la surface ainsi que du nombre de sommets que chaque couche LODS couvre.
-        
-        \item Utiliser une bibliothèque de production de bruit pour ainsi pouvoir générer la texture d'une surface. Utiliser par exemple un bruit de Perlin.
-    \end{enumerate}
-\end{enumerate}
-
-\newpage
-
-\section{Besoins Non-Fonctionnels}
-
-\begin{enumerate}
-            \item [\sffamily a.] Des quantifications:
-                \begin{itemize}
-                    \item Taille :
-                    \item Performance : 
-                    \begin{itemize}
-                        \item Passage à l'échelle : Lors de la création du quadtree ou dans la phase de rendu, s'assurer que le programme puisse gérer des heightmaps très grandes et très détaillées.
-                        \item Garder un affichage fluide de rendu de heightmap.
-                        \item Le temps de traitement du programme ne dépasse pas quelques minutes.
-                        \item Récupérer la taille totale et restante de la mémoire du GPU avec GL NVX gpu memory info.
-                        \end{itemize}
-                        \item Facilité d’utilisation : 
-                        \begin{itemize}
-                        \item Fenêtre graphique dans laquelle se trouve le nombre de sommet que compte l'image et l'altitude.
-                    \end{itemize}
-                    \item Contraintes et difficulté techniques:
-                    \begin{itemize}
-                        \item Surface sphérique. L'ordinateur doit générer un maillage de base convexe pendant la génération du terrain.
-                        \item Contraintes d'affichage: Faire des tests pour pouvoir afficher un nombre conséquents de triangles.
-                        \item L'ordinateur doit perdre le moins de temps possible à rendre le terrain et les sommets du maillage qui ne sont pas visibles par la caméra. On utilise donc pour cela une méthode nommée "culling" qui n'affiche que la partie qui vue par la caméra. La partie en dehors n'est pas affichée. Cela permet de réduire le temps de calcul.
-                        \item Il est obligatoire d'utiliser une machine possédant une carte graphique 
-                        \item Vérifier la version d'openGL. Utiliser de préférence une openGL 3.3.
-                    \end{itemize}
-                    \item Portabilité:
-                    \begin{itemize}
-                        \item Utiliser une machine contenant une carte graphique avec une version d'opengl supérieur à ..
-                    \end{itemize}
-                    \item L'énonciation de risques et parades: 
-                    \begin{itemize}
-                        \item Utiliser les bons algorithmes qui utilise bien le GPU. 
-                        \item Utiliser un maillage de triangle équilatéraux plutôt que d'autres polygones.
-                    \end{itemize}
-                    \item Fiabilité sécurité: 
-                    \begin{itemize}
-                        \item Enregistrer et push le travail avec git.
-                    \end{itemize}
-                \end{itemize}
- \end{enumerate}
- 
-\newpage
 
 \chapter{Les scénarios d'utilisation}
 \section{Scénario :}
@@ -311,8 +325,8 @@ Enfin, il est possible de compresser d'une part les heightmaps, et d'autre part 
 \item[\sffamily 7.] L'utilisateur choisit de changer de heightmap en appuyant sur la touche C.
 \item[\sffamily 8.] L'utilisateur active le maillage en appuyant sur la touche M.
 \item[\sffamily 9.] Le client choisit d'afficher des informations sur le programme en appuyant sur la touche H.
-\item[\sffamily 11.] L'utilisateur met le programme en pause en appuyant sur P.
-\item[\sffamily 10.] Le client quitte le logiciel en appuyant sur Q.
+\item[\sffamily 10.] L'utilisateur met le programme en pause en appuyant sur P.
+\item[\sffamily 11.] Le client quitte le logiciel en appuyant sur Q.
 
 
 
@@ -322,21 +336,18 @@ Enfin, il est possible de compresser d'une part les heightmaps, et d'autre part 
 
 \begin{enumerate}
 
-    \item[\sffamily 1a.] La configuration de l'appareil du client ne permet pas de  faire fonctionner notre logiciel.
-    \begin{itemize}
-        \item Un message d'erreur s'affiche et le logiciel ne s'exécute pas.
-    \end{itemize}
-    \item[\sffamily 2a.] L'utilisateur ferme l'explorateur de fichier
-    \begin{itemize}
-        \item Le logiciel se ferme
-    \end{itemize}
-    \item[\sffamily 2b.] Le client utilise le logiciel avec un fichier ne correspondant pas à une heightmap ou pas compatible avec notre implémentation.
-    \begin{itemize}
-        \item Un message d'erreur s'affiche et le logiciel se ferme.
-    \end{itemize}
-    
-
-
+\item[\sffamily 1a.] La configuration de l'appareil du client ne permet pas de  faire fonctionner notre logiciel.
+\begin{itemize}
+    \item Un message d'erreur s'affiche et le logiciel ne s'exécute pas.
+\end{itemize}
+\item[\sffamily 2a.] L'utilisateur ferme l'explorateur de fichier
+\begin{itemize}
+    \item Le logiciel se ferme
+\end{itemize}
+\item[\sffamily 2b.] Le client utilise le logiciel avec un fichier ne correspondant pas à une heightmap ou pas compatible avec notre implémentation.
+\begin{itemize}
+    \item Un message d'erreur s'affiche et le logiciel se ferme.
+\end{itemize}
 
 \end{enumerate}
 
@@ -346,7 +357,7 @@ Enfin, il est possible de compresser d'une part les heightmaps, et d'autre part 
 
 \section{Test Génération des heightmaps}
 \begin{enumerate}
-    \item Description : Vérifier que la heightmap générer est valide et pourra être lu par notre logiciel
+    \item Description : Vérifier que la heightmap générée est valide et pourra être lue par notre logiciel
     \item Données utilisées : 
     \begin{enumerate}
         \item Fichier vide
@@ -362,11 +373,13 @@ Enfin, il est possible de compresser d'une part les heightmaps, et d'autre part 
 \section{Test Algorithme CDLOD}
 \subsection{Génération d'un quadtree à partir d'une heightmap}
 \begin{enumerate}
-    \item Description : Vérifier que le quadtree générer à partir d'une heightmap est valide, c'est à dire qu'il respecte la définition d'un quadtree.
+    \item Description : Vérifier la validité du quadtree suivant sa définition.
     \item Données utilisées :
     \begin{enumerate}
         \item Heightmap vide
         \item Heightmap non vide
+        \item Autre fichier
+        \item Heightmap corrompue
     \end{enumerate}
     \item Résultats attendus : Si la heightmap est vide alors le Quadtree doit l'être aussi, dans le cas contraire on vérifiera la validité du Quadtree généré
 \end{enumerate}
@@ -385,7 +398,7 @@ Enfin, il est possible de compresser d'une part les heightmaps, et d'autre part 
 \section{Test des interactions utilisateur}
 \subsection{Zoom}
 \begin{enumerate}
-    \item Description : Vérifier qu'un zoom de la part de l'utilisateur, zoom sur la planète et change le niveau de détail.
+    \item Description : Opérer un zoom, observer le changement du niveau de détail (ou pas).
     \item Déroulement du test : Une fois que l'utilisateur a zoomé l'algorithme CDLOD doit nous envoyez les noeuds représentant les parties du terrains visibles et la fenêtre graphique doit se mettre à jour.
 \end{enumerate}
 
@@ -398,7 +411,7 @@ Enfin, il est possible de compresser d'une part les heightmaps, et d'autre part 
 \subsection{Raccourcis clavier}
 \begin{enumerate}
     \item Description : Vérifier qu'à chaque saisie d'un raccourci clavier pour se déplacer la fenêtre graphique se met à jour
-    \item Déroulement du test : Une fois que l'utilisateur a saisi le raccourci clavier, on vérifie que la position de la caméra soit modifier en accord avec les paramètres définis.
+    \item Déroulement du test : Une fois que l'utilisateur a saisi le raccourci clavier, on vérifie que la position de la caméra soit modifiée en accord avec les paramètres définis.
 \end{enumerate}
 
 \bibliography{biblio}
