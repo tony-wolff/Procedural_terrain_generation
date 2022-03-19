@@ -14,16 +14,16 @@ private:
 
     struct MapDimensions
     {
-	float minX;
-	float minY;
-	float minZ;
-	float sizeX;
-	float sizeY;
-	float sizeZ;
+	unsigned int minX;
+	unsigned int minY;
+	unsigned int minZ = 255;
+	unsigned int sizeX;
+	unsigned int sizeY;
+	unsigned int sizeZ;
 
-	float MaxX() const   { return minX + sizeX; }
-	float MaxY() const   { return minY + sizeY; }
-	float MaxZ() const   { return minZ + sizeZ; }
+	unsigned int MaxX() const   { return minX + sizeX; }
+	unsigned int MaxY() const   { return minY + sizeY; }
+	unsigned int MaxZ() const   { return minZ + sizeZ; }
     };
 
 public:
@@ -32,7 +32,7 @@ public:
 	MapLoader(const MapLoader&);
 	~MapLoader();
 
-	unsigned char* ReadMapPNG(const char* filename);
+	uint8_t* ReadMapPNG(const char* filename);
 
 private:
 
