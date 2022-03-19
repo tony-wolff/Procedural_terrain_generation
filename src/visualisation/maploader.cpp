@@ -1,5 +1,7 @@
 #include "maploader.h"
 
+const string heightmap_location = "../../data/textures/";
+
 MapLoader::MapLoader()
 {
     m_mapDimensions = new MapDimensions();
@@ -20,7 +22,7 @@ MapLoader::~MapLoader()
 uint8_t* MapLoader::ReadMapPNG(const char* filename)
 {
     // Create a 8bit gray alpha representation of filename
-    png::image<png::rgb_pixel > image(filename);
+    png::image<png::rgb_pixel > image(heightmap_location + filename);
     //png::image<png::basic_ga_pixel<unsigned char> > image(filename, png::require_color_space< png::basic_ga_pixel<unsigned char> >());
 
     // Set the dimensions

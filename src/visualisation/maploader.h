@@ -8,6 +8,8 @@
 
 using namespace std;
 
+extern const string heightmap_location;
+
 class MapLoader
 {
 private:
