@@ -5,7 +5,6 @@ in vec2 v_uv;
 
 uniform vec3 lightDir;
 uniform sampler2D colormap;
-uniform sampler2D heightMap;
 out vec4 out_color;
 
 vec3 shade(vec3 n, vec3 l, vec3 dCol)

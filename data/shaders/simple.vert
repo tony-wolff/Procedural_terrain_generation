@@ -16,7 +16,7 @@ out vec2 v_uv;
 void main()
 {
   v_uv  = vtx_texcoord;
-  vec4 y =  texture2D(heightMap, vtx_texcoord);
+  //vec4 y =  texture2D(heightMap, vtx_texcoord);
   v_normal = normalize(normal_mat * vtx_normal);
   vec4 p = view_mat * (obj_mat * vec4(vtx_position, 1.));
   //vec4 p = view_mat * (obj_mat *y );
