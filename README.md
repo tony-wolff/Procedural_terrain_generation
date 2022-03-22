@@ -13,5 +13,5 @@ A few warnings could be raised depending on your OS, however the executable shou
 
 ## Operating system tested
 
-- [ ] Mac OS X 10.15
-- [ ] Windows 10, WSL2
+- [x] Mac OS X 10.15
+- [x] Windows 10, WSL2
