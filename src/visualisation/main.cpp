@@ -1,33 +1,24 @@
-#include "maploader.h"
-#include <GLFW/glfw3.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "opengl.h"
+#include "viewer.h"
 #include <iostream>
-
-MapLoader* ml;
+Viewer* v;
 
 int WIDTH = 600;
 int HEIGHT = 600;
 
 int g_pixel_ratio = 1;
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-}
-
-/*static void char_callback(GLFWwindow* window, unsigned int key)
+static void char_callback(GLFWwindow* /*window*/, unsigned int key)
 {
     v->charPressed(key);
 }
 
-static void scroll_callback(GLFWwindow* window, double x, double y)
+static void scroll_callback(GLFWwindow* /*window*/, double x, double y)
 {
     v->mouseScroll(x,y);
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int mods)
 {
     if ((key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
@@ -36,12 +27,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     v->keyPressed(key,action,mods);
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void mouse_button_callback(GLFWwindow* window, int button, int action, int /*mods*/)
 {
     v->mousePressed(window, button, action);
 }
 
-void cursorPos_callback(GLFWwindow* window, double x, double y)
+void cursorPos_callback(GLFWwindow* /*window*/, double x, double y)
 {
     v->mouseMoved(x*g_pixel_ratio,y*g_pixel_ratio);
 }
@@ -51,8 +42,9 @@ void reshape_callback(GLFWwindow* window, int width, int height)
     v->reshape(width,height);
     v->updateAndDrawScene();
     glfwSwapBuffers(window);
-}*/
+}
 
+// initialize GLFW framework
 GLFWwindow* initGLFW()
 {
     if (!glfwInit())
@@ -63,13 +55,13 @@ GLFWwindow* initGLFW()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, (GLint)GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Procedural Planet Generation", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "TP Mondes 3D", NULL, NULL);
     if (!window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
-    //glbinding::Binding::initialize(glfwGetProcAddress);
+    glbinding::Binding::initialize(glfwGetProcAddress);
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
@@ -81,11 +73,11 @@ GLFWwindow* initGLFW()
 
     // callbacks
     glfwSetKeyCallback(window, key_callback);
-    /*glfwSetCharCallback(window, char_callback);
+    glfwSetCharCallback(window, char_callback);
     glfwSetFramebufferSizeCallback(window, reshape_callback);
     glfwSetCursorPosCallback(window, cursorPos_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetScrollCallback(window, scroll_callback);*/
+    glfwSetScrollCallback(window, scroll_callback);
 
     return window;
 }
@@ -96,15 +88,15 @@ static void error_callback(int /*error*/, const char* description)
 }
 
 
-int main (int argc, char **argv)
+int main (int /*argc*/, char **/*argv*/)
 {
     glfwSetErrorCallback(error_callback);
 
     GLFWwindow* window = initGLFW();
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
-    ml = new MapLoader();
-    //v->init(w,h);
+    v = new Viewer();
+    v->init(w,h);
 
     double t0 = glfwGetTime();
     double t1 = t0;
@@ -113,17 +105,17 @@ int main (int argc, char **argv)
         // render the scene
         t1 = glfwGetTime();
         if(t1-t0>0.03) {
-            //v->updateAndDrawScene();
+            v->updateAndDrawScene();
             glfwSwapBuffers(window);
             t0 = t1;
         }
         glfwPollEvents();
     }
 
-    //delete v;
-    delete ml;
+    delete v;
 
     glfwDestroyWindow(window);
     glfwTerminate();
     exit(EXIT_SUCCESS);
 }
+
