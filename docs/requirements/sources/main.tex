@@ -92,17 +92,19 @@ Dans l'ensemble, cet outil permettra de générer la carte de hauteur d'une plan
 
 \section{Bibliothèque de génération de bruit}
 
-Une bibliothèque de génération de bruit sera utile pour la création d'une heightmap 2D du moins. Définisson le terme : Une carte de hauteur est une image 2D monochrome. La valeur du pixel s'interprète comme la distance du terrain par rapport au sol, une valeur élevée se traduit par du blanc sur l'image, une valeur basse par des nuances de noirs, le noir total étant le niveau de la mer. Ces cartes sont créés soit à la main par des artistes, soit par des données de cartes déjà existantes, ou bien par des algorithmes de génération de bruit (notre solution).
+Une bibliothèque de génération de bruit sera utile pour la création d'une heightmap 2D du moins. Définissons le terme : Une carte de hauteur est une image 2D souvent monochrome. La valeur du pixel s'interprète comme la distance du terrain par rapport au sol, une valeur élevée se traduit par du blanc sur l'image, une valeur basse par des nuances de noirs, le noir total étant le niveau de la mer. Ces cartes sont créés soit à la main par des artistes, soit par des données de cartes déjà existantes, ou bien par des algorithmes de génération de bruit (notre solution).
+Plusieurs méthodes sont disponibles pour produire des heightmaps. Elles s'obtiennent à partir d'algorithmes de bruits cohérents tels que le bruit de Perlin, le bruit de Simplex, l'algorithme du déplacement du point médian etc. Simplex est une tentative d'évolution de Perlin, l'algorithme réduit le nombre d'opérations et facilite le travail dans les dimensions supérieures. Les bénéfices sont à considérer lorsque nous avons de grandes dimensions, et l'algorithme étant breveté, nous choisirons de travailler avec Perlin Noise. Le déplacement du point médian ne sera pas exploré pour ce projet, je juge le temps insuffisant pour implémenter l'algorithme, de plus la bibliothèque retenue ne l'utilise pas, il est néanmoins intéressant de savoir que l'algorithme a une complexité mémoire plus élevé que Perlin, il nécessite l'enregistrement des calculs intermédiaires.
 
 \begin{enumerate}
     \item Libnoise
-    Bibliothèque C++ de production de bruit "cohérent", bruit à variation régulière (classe de bruit dont font partie Perlin et Simplex). Comme indiqué sur la page web \cite{libnoisewebsite}, elle a déjà été utilisée sciemment dans le cas de la création d'une carte 2D pour une planète quelconque. 
+    Bibliothèque C++ de production de bruit "cohérent", bruit à variation régulière (classe de bruit dont font partie Perlin et Simplex). Comme indiqué sur la page web \cite{libnoisewebsite}, elle a déjà été utilisée sciemment dans le cas de la création d'une carte 2D pour une planète quelconque. Libnoise génère ce qu'on appelle du bruit cohérent, un type de bruit pseudo-aléatoire régulier, opposé aux bruits purs.
     
     \begin{figure}[h]
     \centering
-    \includegraphics[scale = 0.05]{images/planet.jpg}
-    \caption{texture d'une planète}
+    \includegraphics[scale = 1]{images/coherentnoise.png}
     \source{http://libnoise.sourceforge.net/examples/complexplanet/index.html}
+    \caption{Exemple de bruit cohérent}
+
     \end{figure}
  
     Elle précise bien que ce n'est pas un outil de rendu et qu'il faudra utiliser une autre bibliothèque ou notre propre code pour générer une image, elle propose l'utilisation de \textbf{noiseutils} qui sauve le désagrément décrire des classes telles que le remplissage de noise map (tableau 2D qui a vocation à recevoir les valeurs générées par les modules de bruit), des builders associés à ces noise map pour des objets mathématiques utiles comme la sphère dans notre cas, des classes pour sérialiser une image ou une noise map, et des classes pour créer des images bien entendu. 
@@ -116,17 +118,19 @@ Une bibliothèque de génération de bruit sera utile pour la création d'une he
     \begin{figure}[h]
         \centering
         \includegraphics[scale = 0.5]{images/continuousintnoise2d.png}
+        \source{http://libnoise.sourceforge.net/noisegen/index.html}
         \caption{texture 2D obtenu à l'aide de la fonction continue de bruit cohérent}
     \end{figure}
     
     Elle part d'une fonction pseudo-random tel que \textit{rand()}. en C++ et prend en paramètres des entiers (ou réel pour la version continue), et renvoyant une entier entre -1 et 1, c'est \textit{integerNoise}.
     
-    Pour éviter les froissements dans la texture, l'interpolation des valeurs entières se présente comme immanquable pour avoir des transitions douces entre valeurs de bruit. L'interpolation linéaire est une première version simple mais ne suffit pas à créer une niveau de détail naturel, alors la fonction de bruit cohérent va chercher à utiliser une version non linéaire, couplé à l'interpolation de vecteurs gradient à la place des valeurs entières de bruit. Le vecteur gradient est obtenu avec \textit{integerNoise} qui le sélectionne aléatoirement dans un ensemble de vecteurs précalculés. On utilisera la version 2D de cette fonction, chaque dimension correspond à un paramètre (2 dimensions égal à deux paramètres).
-    Note : un ensemble de fonctions de bruits "cohérents" sera indispensable pour avoir l'essence d'une texture terrain, cette ensemble de fonction se retrouve dans le bruit de Perlin ou de Simplex.
+    Le froissement ou plissage de texture [Figure 2.4] est une imperfection visuelle sur une texture 2D, ces artéfacts forment un pincement à certains endroits. Ils apparaissent car la dérivé de la fonction linéaire aux bornes entières n'est pas définie. Pour éviter les froissements dans la texture, l'interpolation des valeurs entières se présente comme immanquable pour avoir des transitions douces entre valeurs de bruit. L'interpolation linéaire est une première version simple mais ne suffit pas à créer une niveau de détail naturel, alors la fonction de bruit cohérent va chercher à utiliser une version non linéaire, couplé à l'interpolation de vecteurs gradient à la place des valeurs entières de bruit. Le vecteur gradient est obtenu avec \textit{integerNoise} qui le sélectionne aléatoirement dans un ensemble de vecteurs précalculés. On utilisera la version 2D de cette fonction, chaque dimension correspond à un paramètre (2 dimensions égal à deux paramètres).
+    Note : un ensemble de fonctions de bruits cohérents sera indispensable pour avoir l'essence d'une texture terrain, cette ensemble de fonction se retrouve dans le bruit de Perlin ou de Simplex.
     
      \begin{figure}[h]
         \centering
         \includegraphics[scale = 0.7]{images/bumpvalue.png}
+        \source{http://libnoise.sourceforge.net/noisegen/index.html}
         \caption{bumpmap "froissée"}
     \end{figure}
     
@@ -146,22 +150,22 @@ Une bibliothèque de génération de bruit sera utile pour la création d'une he
 
 Dans un premier temps, nous avons étudié l'article de Filip Strugar \textit{Continuous Distance-Dependent Level of Detail for Rendering Heightmaps}\textbf{\cite{FStrugar}}. Bien que paru en 2010, cet article permet de comprendre plus en détail comment représenter une heightmap sous forme de quadtree (arbre quaternaire dont les particularités sont expliquées plus bas) et ainsi utiliser cette structure de données pour créer l'algorithme de rendu de heightmaps CDLOD.
 
-Un quadtree ou arbre quaternaire est un arbre dont chaque noeud dispose au maximum de quatre enfants. Cette représentation est particulièrement utile pour effectuer une subdivision d'un espace en deux dimensions. En effet, une image 2D par exemple peut être partitionnée en quatre quadrants de tailles égales, comprenant chacun l'information de ce quart d'image. Puis, chaque quadrant peut être lui aussi subdivisé en quatre, et ainsi de suite tant que des éléments peuvent être distingués dans celui-ci. Le critère sera le nombre maximum de triangles autorisés dans un quadrant . La valeur maximale sera fixée à 10 000, de sorte que chaque quadrilatère continuera à être divisé jusqu'à ce qu'il contienne moins de 10 000 triangles.  Un bon moyen de visualiser le processus de création d'un quadtree est l'application interactive \textbf{quadtreevis}\footnote{https://jimkang.com/quadtreevis/}, permettant de visualiser la division de l'image de base ainsi que les noeuds de l'arbre associé.
+Un quadtree ou arbre quaternaire est un arbre dont chaque noeud dispose au maximum de quatre enfants. Cette représentation est particulièrement utile pour effectuer une subdivision d'un espace en deux dimensions. En effet, une image 2D par exemple peut être partitionnée en quatre quadrants de tailles égales, comprenant chacun l'information de ce quart d'image. Puis, chaque quadrant peut être lui aussi subdivisé en quatre, et ainsi de suite tant que des éléments peuvent être distingués dans celui-ci. Le critère sera le nombre maximum de triangles autorisés dans un quadrant . La valeur maximale sera fixée à 10 000, de sorte que chaque quadrilatère continuera à être divisé jusqu'à ce qu'il contienne moins de 10 000 triangles. Un bon moyen de visualiser le processus de création d'un quadtree est l'application interactive \textbf{quadtreevis}\footnote{https://jimkang.com/quadtreevis/}, permettant de visualiser la division de l'image de base ainsi que les noeuds de l'arbre associé.
 
 \subsection{Description de l'algorithme quadtree}
-Dans ce projet nous allons utiliser cet algorithme pour pouvoir afficher un niveau de subdivisions du maillage de la surface. Sur le site web \footnote{https://www.rastertek.com/tertut05.html} nous avons trouvé un exemple de code détaillé sur l'algorithme quadtree qui explique comment créer cela.
+Dans ce projet nous allons utiliser cet algorithme pour pouvoir afficher un niveau de subdivisions du maillage de la surface. Sur ce site web \footnote{https://www.rastertek.com/tertut05.html} nous avons trouvé un exemple de code détaillé sur l'algorithme quadtree qui explique comment créer cela.
 
 Pour illustrer le fonctionnement de l'algorithme de l'arbre, nous commençons par un quadruple qui englobe la totalité du terrain.
  Puis nous le divisons en quatre quadrants et vérifions si chacun de ces quadrants contient plus de 10 000 triangles ou non. Si le quadrilatère contient plus de 10 000 triangles, nous le divisons en quatre quadrilatères de taille égale et nous vérifions à nouveau si chacun des quatre nouveaux quadrilatères contient moins de 10 000 triangles ou non. Ainsi de suite. Une fois que chaque quadrilatère de l'arbre entier contient moins de 10 000 triangles, nous avons fini de diviser le terrain en sections. Maintenant, pour chaque quadrant, nous déterminons quels triangles lui appartiennent. Nous pouvons représenter cela sous forme de diagramme. Voir figure 2.5. L'algorithme utilise le noeud supérieur de l'arbre pour représenter l'ensemble du terrain. Le deuxième niveau représente les quatre premiers quadrants ainsi de suite jusqu'à ce qu'il réponde aux critères de division ou non de chaque quadrant.
 
-Par la suite,on crée une classe pour générer un quadtree on utilise une structure qui prend en charge le stockage et le rendu des informations sur les sommets du terrain.
-Ensuite, il faut générer une structure de données utilisée pour la gestion du terrain procédural. Chaque nœud de l'arbre quadruple sera défini comme suit : position, taille, nombre de triangles, tampons et quatre nœuds enfants.
-La classe aura besoin d'une liste des sommets et le noeud parent pour construire le quadtree de manière récursive.
+Par la suite,on crée une classe pour générer un quadtree et on utilise une structure qui prend en charge le stockage et le rendu des informations sur les sommets du terrain.
+Ensuite, on génère une structure de données utilisée pour la gestion du terrain procédural. Chaque nœud de l'arbre quadruple sera défini comme suit : position, taille, nombre de triangles, tampons et quatre nœuds enfants.
+La classe aura notamment besoin d'une liste des sommets et du noeud parent pour construire le quadtree de manière récursive.
 
 
 \subsection{Description de l'algorithme CDLOD}
 
-Pour appliquer ce principe au stockage de heightmap, l'algorithme CDLOD pose la contrainte suivante : La profondeur à laquelle nous nous trouvons dans le quadtree correspond toujours au niveau de détail. En d'autres termes, le noeud le plus élevé de l'arbre correspond au niveau de détail le plus bas, et chaque fils comprendra quatre fois plus d'informations (ici des triangles) que les noeuds de l'étage précédent. La figure suivante, tirée de l'article, représente la division d'une heightmap en 4 niveaux de détail : Du moins détaillé (LOD 3) au plus détaillé (LOD 0).
+Pour appliquer ce principe au stockage de heightmap, on utilise l'algorithme CDLOD qui pose la contrainte suivante : La profondeur à laquelle nous nous trouvons dans le quadtree correspond toujours au niveau de détail. En d'autres termes, le noeud le plus élevé de l'arbre correspond au niveau de détail le plus bas, et chaque fils comprendra quatre fois plus d'informations (ici des triangles) que les noeuds de l'étage précédent. La figure suivante, tirée de l'article, représente la division d'une heightmap en 4 niveaux de détail : Du moins détaillé (LOD 3) au plus détaillé (LOD 0).
 
 \vspace{0.3cm}
 
@@ -280,7 +284,7 @@ Bibliothèque de gestion de quadtrees : https://github.com/dfriend21/quadtree
 
 \textbf{Taille des données en mémoire} : L'implémentation pratique d'un logiciel de rendu de terrain doit tenir compte de la taille de ce dernier. Ici, il y a deux facteurs principaux à prendre en compte :
 \begin{enumerate}
-    \item \textbf{Les données de terrain} : Pour ne pas garder la totalité des données de la heightmap en mémoire, celle-ci peut-être divisée en blocks représentants les morceaux de terrain potentiellement visibles par l'observateur. Ces fragments peuvent être transmis sous forme de data-stream pendant le rendu. Cette méthode est d'autant plus efficace que l'algorithme CDLOD effectue déjà une sélection des blocks lors du calcul de LOD. 
+    \item \textbf{Les données de terrain} : Pour ne pas garder la totalité des données de la heightmap en mémoire, celle-ci peut-être divisée en blocks représentants les morceaux de terrain potentiellement visibles par l'observateur. Au lieu d'envoyer toutes les informations à votre GPU, on trie les éléments visibles et invisibles et on ne rend que les éléments visibles. Grâce à cette technique, on gagne du temps de calcul GPU. Ces fragments peuvent être transmis sous forme de data-stream pendant le rendu. Cette méthode est d'autant plus efficace que l'algorithme CDLOD effectue déjà une sélection des blocks lors du calcul de LOD. 
     \item \textbf{Les données du quadtree} : Plus volumineux encore, les noeuds du quadtree contiennent des détails tels que la taille, la position, les voisins du noeud, etc... beaucoup d'informations qui peuvent être superflues pour l'étape de rendu. La version StreamingCDLOD de l'algorithme présenté dans le chapitre 2.2 évite ce problème en ne gardant que les valeurs minimales et maximales de la surface couverte par le noeud, qui sont stockées dans une matrice 2x2 pour chaque noeud. Le reste des données est automatiquement généré lors du parcours du quadtree.
     \item \textbf{Performance}: Le temps de traitement du programme ne dépasse pas quelques minutes.
     \item \textbf{Passage à l'échelle} : Lors de la création du quadtree ou dans la phase de rendu, s'assurer que le programme puisse gérer des heightmaps très grandes et très détaillées.
@@ -413,6 +417,40 @@ Enfin, il est possible de compresser d'une part les heightmaps, et d'autre part 
     \item Description : Vérifier qu'à chaque saisie d'un raccourci clavier pour se déplacer la fenêtre graphique se met à jour
     \item Déroulement du test : Une fois que l'utilisateur a saisi le raccourci clavier, on vérifie que la position de la caméra soit modifiée en accord avec les paramètres définis.
 \end{enumerate}
+
+\chapter{Prototypes et choix techniques}
+
+\section{language de programmation}
+
+Au vu de l'analyse de l'existant et des contraintes du projet, nous avons choise d'utiliser le langage C++ pour développer nottre application. En effet, une grande partie des projets et des librairies traitant du sujet utilisent le C++, notamment pour des raisons d'efficacité de gestion de la mémoire qui est un point crucial du projet.
+
+De même, l'utilisation de la bibliothèque OpenGL sera grandement facilitée car nous avons déjà tous une certaine expérience à l'utiliser avec ce langage. Pour s'assurer que notre programme puisse fonctionner sur différents systèmes et configurations, nous utilisons OpenGL 3.3.
+
+\section{Implémentation du module CDLOD}
+
+Pour commencer à réaliser la transformation des heightmaps en quadtrees, nous sommes partis de heightmaps simples préconstruites et distribuées sous license libre.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale = 0.7]{images/simple_heightmap_1025.PNG}
+    \caption{Heightmap plane 1025x1025, PNG}
+    \source{https://www.motionforgepictures.com/height-maps}
+\end{figure}
+
+\newpage
+
+La première contrainte apparaissant ici est celle du format des heightmaps. En effet, les cartes que nous avons trouvé ne sont pas en .RAW comme nous le pensions mais dans différents formats image tels que PNG, TIFF ou encore EXR. Nous avons donc commencé par utiliser la librairie libpng pour traiter cette première heightmap.
+
+\chapter{Architecture de l'application}
+\section{Explication du diagramme de classes}
+Notre classe Application est le coeur du logiciel, c’est elle qui via la méthode setUp va instancier l’input manager, la génération de terrain et le Viewer, c’est donc elle qui va faire le choix de quel algorithme utiliser (CDLOD dans notre cas) et quel rendu 3D (OpenGL dans notre cas).
+
+OpenGLViewer possède une mesh et un shader lui permettant de faire le rendu 3D de la sphère, ainsi que trackball qui lui permet de fixer la caméra sur la sphère, à noter que trackball et caméra sont indépendant d’OpenGLViewer.
+
+L’Application pourra choisir quel algorithme utiliser, pour cela on utilise le pattern "Builder", ainsi le client (ici l’Application) doit choisir l’algorithme puis compiler celui-ci, une fois fait il pourra récupérer le résultat en indiquant le niveau de détail qu’il souhaite (spécifique à CDLOD).
+
+
+Enfin l’algorithme utilise un MapLoader qui nous permet depuis un fichier PNG / TIFF / EXR ou depuis une génération de HeightMap aléatoire utilisant libnoise d’importer une HeightMap sous un format Unsigned Int sur 8 bits, car les HeightMap utilise des nuances de gris allant de 0 à 255. Celui ci sera transmis à OpenGL via l'application qui devra l'utiliser afin de dessiner les mesh.
 
 \bibliography{biblio}
 \bibliographystyle{alpha}
