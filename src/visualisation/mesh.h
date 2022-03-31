@@ -36,8 +36,12 @@ public:
   /** Send the mesh to OpenGL for drawing using shader \a shd */
   virtual void draw(const Shader &shd);
 
+  unsigned int getRaw_width();
+  unsigned int getRaw_height();
+
 protected:
   /** Loads a triangular mesh in the OFF format */
+  bool loadPNG(const std::string &filename);
   bool loadOFF(const std::string &filename);
   bool loadOBJ(const std::string &filename);
 
@@ -54,6 +58,7 @@ protected:
     Vector2f texcoord;
     Vector3f tangent;
     Vector3f bitangent;
+    bool visible;
   };
 
   /** The list of vertices */
@@ -68,6 +73,9 @@ protected:
   unsigned int
       mIndexBufferId; ///< the id of the BufferObject storing the faces indices
   bool mIsInitialized;
+
+  unsigned int raw_width = 0;
+  unsigned int raw_height = 0; 
 };
 
 #endif

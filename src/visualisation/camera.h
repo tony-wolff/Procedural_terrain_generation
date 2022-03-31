@@ -19,6 +19,11 @@ class Camera
     void zoom(float x);
     
     void rotateAroundTarget(float angle, Eigen::Vector3f axis);
+
+    void moveForward(float x);
+    void moveBackward(float x);
+    void moveLeft(float x);
+    void moveRight(float x);
     
     /** Returns the affine transformation matrix from the global space to the camera space */
     const Eigen::Matrix4f& viewMatrix() const;

@@ -36,11 +36,9 @@ private:
     Shader _shader;
     Mesh   _mesh;
 
-    GLuint _texid;
-    GLuint _heightMapid;
-
     float _theta;
     bool _rotate;
+    bool _wireframe;
 
 
     // Mouse parameters for the trackball

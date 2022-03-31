@@ -11,10 +11,12 @@ using namespace Eigen;
 bool Mesh::load(const std::string& filename)
 {
   std::string ext = filename.substr(filename.size()-3,3);
-  if(ext=="off" || ext=="OFF")
+  //if(ext=="png" || ext=="PNG")
+    return loadPNG(filename);
+  /*else if(ext=="off" || ext=="OFF")
     return loadOFF(filename);
   else if(ext=="obj" || ext=="OBJ")
-    return loadOBJ(filename);
+    return loadOBJ(filename);*/
 
   std::cerr << "Mesh: extension \'" << ext << "\' not supported." << std::endl;
   return false;
@@ -22,11 +24,27 @@ bool Mesh::load(const std::string& filename)
 
 void Mesh::computeNormals()
 {
-  // pass 1: set the normal to 0
+    /*// pass 1: set the normal to 0
+    for(std::vector<Vertex>::iterator v_iter = _vertices.begin() ; v_iter!=_vertices.end() ; ++v_iter)
+        v_iter->normal.setZero();
 
-  // pass 2: compute face normals and accumulate
+    // pass 2: compute face normals and accumulate
+    for(std::size_t j=0; j<_faces.size(); ++j)
+    {
+        Vector3f v0 = _vertices[_faces[j][0]].position;
+        Vector3f v1 = _vertices[_faces[j][1]].position;
+        Vector3f v2 = _vertices[_faces[j][2]].position;
 
-  // pass 3: normalize
+        Vector3f n = (v1-v0).cross(v2-v0).normalized();
+
+        _vertices[_faces[j][0]].normal += n;
+        _vertices[_faces[j][1]].normal += n;
+        _vertices[_faces[j][2]].normal += n;
+    }
+
+    // pass 3: normalize
+    for(std::vector<Vertex>::iterator v_iter = _vertices.begin() ; v_iter!=_vertices.end() ; ++v_iter)
+        v_iter->normal.normalize();*/
 }
 
 void Mesh::initVBA()
@@ -117,6 +135,15 @@ void Mesh::draw(const Shader &shd)
   checkError();
 }
 
+unsigned int Mesh::getRaw_width() {
+  return raw_width;
+}
+
+unsigned int Mesh::getRaw_height() {
+  return raw_height;
+}
+
+
 
 
 
@@ -124,8 +151,94 @@ void Mesh::draw(const Shader &shd)
 // Loaders...
 //********************************************************************************
 
+#include <ImageMagick-7/Magick++.h>
+bool Mesh::loadPNG(const std::string& filename)
+{
 
-bool Mesh::loadOFF(const std::string& filename)
+    unsigned int vertexNum = 0;
+    unsigned int facesNum = 0;
+
+    /*float heightmap_x = 16.0f;
+    float heightmap_z = 16.0f;
+    float heightmap_y = 1.25f;
+    float heightmap_tex_x = 1.0f / 16.0f;
+    float heightmap_tex_z = 1.0f / 16.0f;*/
+
+    /* float heightmap_x = 160.0f;
+    float heightmap_z = 160.0f;
+    float heightmap_y = 12.5f;
+    float heightmap_tex_x = 1.0f / 1.60f;
+    float heightmap_tex_z = 1.0f / 1.60f;*/
+
+    float heightmap_x = 1;
+    float heightmap_z = 1;
+    float heightmap_y = 1;
+    float heightmap_tex_x = 1;
+    float heightmap_tex_z = 1;
+
+
+  Magick::InitializeMagick(NULL);
+  Magick::Image heightmap;
+
+        // Read a file into image object 
+  heightmap.read(filename);
+
+
+   // Getting the width and height 
+    raw_height = heightmap.rows();
+    raw_width = heightmap.columns();
+    vertexNum = raw_width * raw_height;
+    facesNum = ((raw_width-1) * (raw_height-1)) * 2;
+    mVertices.resize(vertexNum);
+    mFaces.reserve(facesNum);
+
+    std::cout << "Map Height : " << raw_height << std::endl;
+    std::cout << "Map Width : " << raw_width << std::endl;
+    std::cout << "vertexNum : " << vertexNum << std::endl;
+    std::cout << "facesNum : " << facesNum << std::endl;
+
+    // Acces image pixel by pixel
+
+        heightmap.modifyImage();
+
+        for(unsigned int x = 0; x < raw_width; ++x) {
+            for(unsigned int z = 0; z < raw_height; ++z) {
+                unsigned int offset = x * raw_width + z;
+                Magick::ColorRGB pixel = heightmap.pixelColor(x, z);
+                //std::cout << pixel.red() << std::endl;
+                unsigned char col = (unsigned char) (pixel.red()*255);
+                //std::cout << x * heightmap_x << " " << col * heightmap_y << " " << z * heightmap_z << " " << std::endl;
+                mVertices[offset] = Vertex(Vector3f(x * heightmap_x, col * heightmap_y, z * heightmap_z));
+                mVertices[offset].texcoord = Vector2f(x * heightmap_tex_x, z * heightmap_tex_z);
+                mVertices[offset].visible = true;
+            }
+        }
+
+        for(unsigned int x = 0; x < raw_width-1; ++x) {
+            for(unsigned int z = 0; z < raw_height-1; ++z) {
+                unsigned int offset = x * raw_width + z;
+                if(mVertices[offset].visible == true) {
+                    unsigned int a = x * raw_width + z;
+                    unsigned int b = (x+1) * raw_width + z;
+                    unsigned int c = (x+1) * raw_width + (z+1);
+                    unsigned int d = x * raw_width + (z+1);
+
+                    mFaces.push_back(Vector3i(c, b, a));
+                    mFaces.push_back(Vector3i(a, d, c));
+                }
+                
+            }
+        }
+
+
+    computeNormals();
+  
+
+  return true;
+}
+
+
+/*bool Mesh::loadOFF(const std::string& filename)
 {
   std::ifstream in(filename.c_str(),std::ios::in);
   if(!in)
@@ -233,4 +346,4 @@ bool Mesh::loadOBJ(const std::string& filename)
     computeNormals();
   
   return true;
-}
+}*/
