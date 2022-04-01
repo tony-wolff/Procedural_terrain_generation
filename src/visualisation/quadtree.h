@@ -1,5 +1,7 @@
 #include <Eigen/Dense>
+#include <vector>
 
+using namespace std;
 using namespace Eigen;
 
 class QuadTree
@@ -11,13 +13,15 @@ class QuadTree
       int level;
     };
 
-    QTNode* nodearray;
-    unsigned int size;
+    vector<QTNode> nodearray;
+    unsigned int width;
+    unsigned int height;
+
   public:
     QuadTree();
     QuadTree(MatrixXf heightmap);
     QuadTree(const QuadTree&);
     ~QuadTree();
-    MatrixXf getResult(int level);
+    vector<double> getResult(int level);
 
 };

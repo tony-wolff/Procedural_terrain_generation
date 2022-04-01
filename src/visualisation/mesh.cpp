@@ -2,6 +2,7 @@
 #include "mesh.h"
 #include "shader.h"
 #include "maploader.h"
+#include "quadtree.h"
 #include <Eigen/Geometry>
 #include <iostream>
 #include <fstream>
@@ -179,12 +180,16 @@ bool Mesh::loadPNG(const std::string& filename)
 
     MapLoader* m_loader = new MapLoader();
 
-    MatrixXf mat;
-    m_loader->ReadMap(filename, &mat);
+    MatrixXf hmapMat;
+    m_loader->ReadMap(filename, &hmapMat);
 
-   // Getting the width and height 
-    raw_height = mat.rows();
-    raw_width = mat.cols();
+    // We build the QuadTree & get the first lod
+    QuadTree* qt = new QuadTree(hmapMat);
+    
+    vector<double> qtMat = qt->getResult(0);
+    // Getting the width and height 
+    raw_height = (hmapMat.rows() - 1);
+    raw_width = (hmapMat.cols() - 1);
     vertexNum = raw_width * raw_height;
     facesNum = ((raw_width-1) * (raw_height-1)) * 2;
     mVertices.resize(vertexNum);
@@ -200,7 +205,7 @@ bool Mesh::loadPNG(const std::string& filename)
         for(unsigned int z = 0; z < raw_height; ++z) {
             unsigned int offset = x * raw_width + z;
 
-            mVertices[offset] = Vertex(Vector3f(x * heightmap_x, (mat(z, x) * 255) * heightmap_y, z * heightmap_z));
+            mVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
             mVertices[offset].texcoord = Vector2f(x * heightmap_tex_x, z * heightmap_tex_z);
             mVertices[offset].visible = true;
         }
