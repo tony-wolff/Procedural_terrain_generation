@@ -18,7 +18,7 @@ MapLoader::~MapLoader()
     delete m_mapDimensions;
 }
 
-int MapLoader::ReadMap(const std::string& filename, MatrixXf* mat)
+int MapLoader::ReadMap(const std::string& filename, MatrixXf* matrix)
 {
     InitializeMagick(NULL);
     Image heightmap;
@@ -37,7 +37,7 @@ int MapLoader::ReadMap(const std::string& filename, MatrixXf* mat)
     // Getting the width and height and resizing the matrix
     m_mapHeight = heightmap.rows();
     m_mapWidth = heightmap.columns();
-    mat->resize(m_mapHeight, m_mapWidth);
+    matrix->resize(m_mapHeight, m_mapWidth);
 
     // cout << "Map Height : " << m_mapHeight << endl;
     // cout << "Map Width : " << m_mapWidth << endl;
@@ -52,7 +52,7 @@ int MapLoader::ReadMap(const std::string& filename, MatrixXf* mat)
             for (ssize_t j = 0; j < m_mapWidth; j++)
             {
                 ColorRGB pixel = heightmap.pixelColor(j, i);
-                (*mat)(i, j) = pixel.red();
+                (*matrix)(i, j) = pixel.red();
             }
         }
     }
