@@ -4,9 +4,11 @@ project(planet_generation)
 add_subdirectory(ext/glfw)
 add_subdirectory(ext/glbinding)
 add_subdirectory(ext/SOIL)
+add_subdirectory(ext/libnoise)
 
 include_directories(ext/glfw/include)
 include_directories(ext/glbinding/include)
+include_directories(ext/libnoise/include)
 include_directories(ext/eigen3)
 include_directories(ext/SOIL/src)
 include_directories(ext/)
@@ -40,7 +42,7 @@ add_executable(planet_generation ${SRC_FILES})
 find_package(PNG REQUIRED)
 
 
-target_link_libraries(planet_generation glfw ${GLFW_LIBRARIES} glbinding SOIL)
+target_link_libraries(planet_generation glfw ${GLFW_LIBRARIES} glbinding SOIL libnoise)
 
 function(IndicateExternalFile _target)
     foreach(_file IN ITEMS ${ARGN})
