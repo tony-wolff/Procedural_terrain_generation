@@ -48,6 +48,30 @@ void Camera::rotateAroundTarget(float angle, Vector3f axis)
   mViewMatrix =  Translation3f(t) * AngleAxisf(angle,axis) * Translation3f(t).inverse() * mViewMatrix;
 }
 
+void Camera::moveForward(float x)
+{
+   Vector3f t = Affine3f(mViewMatrix) * mTarget;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(0,x*t.norm(),0)).inverse()) * mViewMatrix;
+}
+
+void Camera::moveBackward(float x)
+{
+   Vector3f t = Affine3f(mViewMatrix) * mTarget;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(0,-x*t.norm(),0)).inverse()) * mViewMatrix;
+}
+
+void Camera::moveLeft(float x)
+{
+   Vector3f t = Affine3f(mViewMatrix) * mTarget;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(-x*t.norm(),0,0)).inverse()) * mViewMatrix;
+}
+
+void Camera::moveRight(float x)
+{
+   Vector3f t = Affine3f(mViewMatrix) * mTarget;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(x*t.norm(),0,0)).inverse()) * mViewMatrix;
+}
+
 Camera::~Camera()
 {
 }

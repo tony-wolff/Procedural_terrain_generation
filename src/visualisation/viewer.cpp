@@ -1,12 +1,10 @@
 #include "viewer.h"
 #include "camera.h"
-#include "opengl.h"
-#include "SOIL2.h"
 
 using namespace Eigen;
 
 Viewer::Viewer()
-  : _winWidth(0), _winHeight(0), _theta(0), _rotate(false)
+  : _winWidth(0), _winHeight(0), _theta(0), _rotate(false), _wireframe(false)
 {
 }
 
@@ -21,22 +19,17 @@ Viewer::~Viewer()
 void Viewer::init(int w, int h){
 
     // Background color
-    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
 
     loadShaders();
-    if(!_mesh.load(DATA_DIR"/models/earth.obj")) exit(1);
+    if(!_mesh.load(DATA_DIR"/textures/Terrain.jpg")) exit(1);
     _mesh.initVBA();
 
-    _texid = SOIL_load_OGL_texture(DATA_DIR"/textures/Ridge_Through_Terrain.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS);
-
-    if( 0 == _texid )
-    {
-        printf( "SOIL loading error: '%s'\n", SOIL_last_result() );
-    }
-
     reshape(w,h);
-    _cam.setPerspective(M_PI/3,0.3f,20000.0f);
-    _cam.lookAt(Vector3f(0,3,3), Vector3f(0,0,0), Vector3f(0,1,0));
+    _cam.setPerspective(M_PI/3, 0.3f, 20000.0f);
+    //_cam.setPerspective(0, 10000.0f, 0);
+    _cam.lookAt(Vector3f(_mesh.getRaw_width()/2, 100, _mesh.getRaw_height()/2), Vector3f(0, 0, 0), Vector3f(0,1,0));
+    //_cam.lookAt(Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0,0,0));
     _trackball.setCamera(&_cam);
 
     glEnable(GL_DEPTH_TEST);
@@ -60,6 +53,7 @@ void Viewer::drawScene()
 
     _shader.activate();
 
+    glUniform1i(_shader.getUniformLocation("wireframe"), 0);
     glUniformMatrix4fv(_shader.getUniformLocation("view_mat"),1,GL_FALSE,_cam.viewMatrix().data());
     glUniformMatrix4fv(_shader.getUniformLocation("proj_mat"),1,GL_FALSE,_cam.projectionMatrix().data());
 
@@ -75,11 +69,19 @@ void Viewer::drawScene()
     lightDir = (matLocal2Cam.topLeftCorner<3,3>() * lightDir).normalized();
     glUniform3fv(_shader.getUniformLocation("lightDir"),1,lightDir.data());
 
-    glBindTexture(GL_TEXTURE_2D, _texid);
-    glActiveTexture(GL_TEXTURE0);
-    glUniform1i(_shader.getUniformLocation("colormap"), 0);
-
     _mesh.draw(_shader);
+
+
+    if(_wireframe)
+    {
+      glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+      glEnable(GL_LINE_SMOOTH);
+      glDepthFunc(GL_LEQUAL);
+      glUniform1i(_shader.getUniformLocation("wireframe"), 1);
+      _mesh.draw(_shader);
+      glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+      glUniform1i(_shader.getUniformLocation("wireframe"), 0);
+    }
 
     _shader.deactivate();
 }
@@ -139,7 +141,7 @@ void Viewer::mouseMoved(int x, int y)
 
 void Viewer::mouseScroll(double /*x*/, double y)
 {
-  _cam.zoom(-0.1f*y);
+  _cam.zoom(-0.1*y);
 }
 
 /*!
@@ -149,28 +151,43 @@ void Viewer::mouseScroll(double /*x*/, double y)
  */
 void Viewer::keyPressed(int key, int action, int /*mods*/)
 {
-  if(key == GLFW_KEY_R && action == GLFW_PRESS)
+  if(action == GLFW_PRESS)
   {
-    loadShaders();
-  }
-  else if(key == GLFW_KEY_A && action == GLFW_PRESS)
-  {
-    _rotate = !_rotate;
+    if(key == GLFW_KEY_R)
+    {
+      loadShaders();
+    }
+    else if(key == GLFW_KEY_A)
+    {
+      _rotate = !_rotate;
+    }
+    else if(key == GLFW_KEY_W)
+    {
+      _wireframe = !_wireframe;
+    }
+    else if(key == GLFW_KEY_S )
+    {
+      //_mesh.subdivide();
+    }
   }
 
   if(action == GLFW_PRESS || action == GLFW_REPEAT )
   {
     if (key==GLFW_KEY_UP)
     {
+      _cam.moveForward(0.1);
     }
     else if (key==GLFW_KEY_DOWN)
     {
+      _cam.moveBackward(0.1);
     }
     else if (key==GLFW_KEY_LEFT)
     {
+      _cam.moveLeft(0.1);
     }
     else if (key==GLFW_KEY_RIGHT)
     {
+      _cam.moveRight(0.1);
     }
     else if (key==GLFW_KEY_PAGE_UP)
     {
