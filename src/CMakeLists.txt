@@ -9,6 +9,7 @@ include_directories(ext/glfw/include)
 include_directories(ext/glbinding/include)
 include_directories(ext/eigen3)
 include_directories(ext/)
+include_directories(/usr/local/include)
 
 set (CMAKE_CXX_STANDARD 11)
 
@@ -29,6 +30,10 @@ set(SRC_FILES
     visualisation/mesh.cpp
     visualisation/trackball.cpp
     visualisation/trackball.h
+    visualisation/quadtree.cpp
+    visualisation/quadtree.h
+    visualisation/maploader.cpp
+    visualisation/maploader.h
     )
 
 add_definitions(-DDATA_DIR="${PROJECT_SOURCE_DIR}/../data")
