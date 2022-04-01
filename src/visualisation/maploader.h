@@ -39,7 +39,7 @@ public:
 	~MapLoader();
 
 	/* Read the image in 'any' format, return -1 if the files can't be loaded, 0 otherwise */
-	int ReadMap(const char* filename, MatrixXf mat);
+	int ReadMap(const std::string& filename, MatrixXf* mat);
 
 private:
 
