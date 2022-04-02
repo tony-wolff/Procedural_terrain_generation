@@ -49,22 +49,35 @@ QuadTree::QuadTree(float minX, float maxX, float minZ, float maxZ, int width, in
 }
 
 void QuadTree::createNode(QTNode parent) {
+    // A définir
+    float threshold = 0.0f;
+
     // Une fois le cap de triangle atteinds (8 pour une image de 512)
     // On créer les vertex dans les feuilles 
     // Dedans on enregistre les positions (On récuperera la valeur de y plus tard ?)
-    if (parent.width * pow(0.5, 6)) {
-        return;
+    if ((parent.minZ - parent.maxZ) == threshold) {
+
+        // On calcule les vertex des triangle
+        // Il faudra aussi récupérer la scale du terrain
+        // C'est dans le main (ou mesh.cpp) qu'on construira les vertex3F avec la valeur de hauteur 
+        for (int x = parent.minX; x < parent.width; x++) {
+            for (int z = parent.minZ; z < parent.height; z++) {
+                parent.vertices.pushback(Vertex( Vector2f(x, z) ));
+            }
+        }
     }
     // Sinon on continue récursivement à créer les enfants
     // J'en créer qu'un ici mais normalement on en créer 4
     else {
         QTNode childNode;
-
+        
+        // Paramètres valable pour tout les fils
+        childNode.width = parent.width / 2;
+        childNode.height = parent.height / 2;
+        childNode.level = parent.level + 1;
         /* 
         * Fils en bas à gauche
         */
-        childNode.width = parent.width / 2;
-        childNode.height = parent.height / 2;
 
         childNode.minX = parent.minX;
         childNode.maxX = parent.minX + childNode.width;

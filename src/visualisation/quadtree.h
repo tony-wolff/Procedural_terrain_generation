@@ -14,6 +14,7 @@ class QuadTree
       int width, height;
       float minX, maxX, minZ, maxZ;
       
+      vector<Vertex> vertices;
       unsigned int childrenIndex[4];
     } QTNode;
 
