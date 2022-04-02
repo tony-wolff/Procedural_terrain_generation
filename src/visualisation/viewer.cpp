@@ -32,7 +32,8 @@ void Viewer::init(int w, int h)
   //_cam.setPerspective(0, 10000.0f, 0);
   //_cam.lookAt(Vector3f(_mesh.getRaw_width() / 2, 100, _mesh.getRaw_height() / 2), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
   //_cam.lookAt(Vector3f(-100.0f, 100.0f, -100.0f), Vector3f(5.0f, 0.0f, 1.0f), Vector3f(0, 4, 0));
-  _cam.lookAt(Vector3f(-100.0f, 150.0f, -130.0f), Vector3f(5.0f, 50.0f, 30.0f), Vector3f(0, 10, 0));
+  //_cam.lookAt(Vector3f(-100.0f, 150.0f, -130.0f), Vector3f(5.0f, 50.0f, 30.0f), Vector3f(0, 10, 0));
+  _cam.lookAt(Vector3f(_mesh.getRaw_width(), _mesh.getRaw_height()/2, _mesh.getRaw_height()), Vector3f(1, 1, 1), Vector3f(0, 1, 0));
 
   _trackball.setCamera(&_cam);
 
@@ -184,11 +185,11 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
     }
     else if (key == GLFW_KEY_LEFT)
     {
-      _cam.moveLeft(0.01);
+      _cam.lookLeft(0.01);
     }
     else if (key == GLFW_KEY_RIGHT)
     {
-      _cam.moveRight(0.01);
+      _cam.lookRight(0.01);
     }
     else if (key == GLFW_KEY_PAGE_UP)
     {
@@ -205,6 +206,14 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
     else if (key == GLFW_KEY_D)
     {
       _cam.moveBackward(0.01);
+    }
+    else if (key == GLFW_KEY_S)
+    {
+      _cam.moveLeft(0.01);
+    }
+    else if (key == GLFW_KEY_F)
+    {
+      _cam.moveRight(0.01);
     }
   }
 }

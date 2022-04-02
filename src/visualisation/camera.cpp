@@ -2,6 +2,8 @@
 #include "camera.h"
 #include "opengl.h"
 
+
+
 using namespace Eigen;
 
 Camera::Camera()
@@ -51,44 +53,19 @@ void Camera::rotateAroundTarget(float angle, Vector3f axis)
 void Camera::moveUp(float x)
 {
   Vector3f t = Affine3f(mViewMatrix) * mTarget;
-  mViewMatrix = Affine3f(Translation3f(Vector3f(0, x * t.norm(), 0)).inverse()) * mViewMatrix;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(0, -x * t.norm(), 0))) * mViewMatrix;
 }
 
 void Camera::moveDown(float x)
 {
   Vector3f t = Affine3f(mViewMatrix) * mTarget;
-  mViewMatrix = Affine3f(Translation3f(Vector3f(0, -x * t.norm(), 0)).inverse()) * mViewMatrix;
-}
-
-void Camera::lookUp(float x)
-{
-  Vector3f t = Affine3f(mViewMatrix) * mTarget;
-  // mViewMatrix = Affine3f(Translation3f(Vector3f(0, x * t.norm(), 0)).inverse()) * mViewMatrix;
-  mViewMatrix = Affine3f(AngleAxisf(-x, Vector3f::UnitX())) * mViewMatrix;
-}
-
-void Camera::lookDown(float x)
-{
-  Vector3f t = Affine3f(mViewMatrix) * mTarget;
-  mViewMatrix = Affine3f(AngleAxisf(x, Vector3f::UnitX())) * mViewMatrix;
-}
-
-void Camera::moveLeft(float x)
-{
-  Vector3f t = Affine3f(mViewMatrix) * mTarget;
-  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitY())) * mViewMatrix;
-}
-
-void Camera::moveRight(float x)
-{
-  Vector3f t = Affine3f(mViewMatrix) * mTarget;
-  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, Vector3f::UnitY())) * mViewMatrix;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(0, x * t.norm(), 0))) * mViewMatrix;
 }
 
 void Camera::moveForward(float x)
 {
   Vector3f t = Affine3f(mViewMatrix) * mTarget;
-  mViewMatrix = Affine3f(Translation3f(Vector3f(0, 0, -x * t.norm())).inverse()) * mViewMatrix;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(0, 0, x * t.norm()))) * mViewMatrix;
 }
 
 void Camera::moveBackward(float x)
@@ -96,6 +73,42 @@ void Camera::moveBackward(float x)
   Vector3f t = Affine3f(mViewMatrix) * mTarget;
   mViewMatrix = Affine3f(Translation3f(Vector3f(0, 0, -x * t.norm()))) * mViewMatrix;
 }
+
+void Camera::moveRight(float x)
+{
+  Vector3f t = Affine3f(mViewMatrix) * mTarget;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(-x * t.norm(), 0, 0))) * mViewMatrix;
+}
+
+void Camera::moveLeft(float x)
+{
+  Vector3f t = Affine3f(mViewMatrix) * mTarget;
+  mViewMatrix = Affine3f(Translation3f(Vector3f(x * t.norm(), 0, 0))) * mViewMatrix;
+}
+
+
+
+void Camera::lookUp(float x)
+{
+  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, Vector3f::UnitX())) * mViewMatrix;
+}
+
+void Camera::lookDown(float x)
+{
+  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitX())) * mViewMatrix;
+}
+
+void Camera::lookRight(float x)
+{
+  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, Vector3f::UnitY())) * mViewMatrix;
+}
+
+void Camera::lookLeft(float x)
+{
+  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitY())) * mViewMatrix;
+}
+
+
 
 Camera::~Camera()
 {

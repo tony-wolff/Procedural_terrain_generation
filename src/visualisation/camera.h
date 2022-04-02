@@ -29,6 +29,8 @@ public:
   void moveDown(float x);
   void lookUp(float x);
   void lookDown(float x);
+  void lookLeft(float x);
+  void lookRight(float x);
 
   /** Returns the affine transformation matrix from the global space to the camera space */
   const Eigen::Matrix4f &viewMatrix() const;
