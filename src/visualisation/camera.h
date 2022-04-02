@@ -6,41 +6,45 @@
 
 class Camera
 {
-  public:
-    Camera();
-    virtual ~Camera();
 
-    /** Setup the camera position and orientation based on its \a position, \a a target point, \a the up vector */
-    void lookAt(const Eigen::Vector3f& position, const Eigen::Vector3f& target, const Eigen::Vector3f& up);
+public:
+  Camera();
+  virtual ~Camera();
 
-    /** Setup the perspective projection matrix */
-    void setPerspective(float fovY, float near, float far);
+  /** Setup the camera position and orientation based on its \a position, \a a target point, \a the up vector */
+  void lookAt(const Eigen::Vector3f &position, const Eigen::Vector3f &target, const Eigen::Vector3f &up);
 
-    void zoom(float x);
-    
-    void rotateAroundTarget(float angle, Eigen::Vector3f axis);
+  /** Setup the perspective projection matrix */
+  void setPerspective(float fovY, float near, float far);
 
-    void moveForward(float x);
-    void moveBackward(float x);
-    void moveLeft(float x);
-    void moveRight(float x);
-    
-    /** Returns the affine transformation matrix from the global space to the camera space */
-    const Eigen::Matrix4f& viewMatrix() const;
-    /** Returns the perspective projection matrix */
-    Eigen::Matrix4f projectionMatrix() const;
-    
-    void setViewport(int width, int height);
-    
-    int vpWidth() const { return mVpWidth; }
-    int vpHeight() const { return mVpHeight; }
-    
-  protected:
+  void zoom(float x);
 
-    Eigen::Matrix4f mViewMatrix;
-    Eigen::Vector3f mTarget;
-    float m_fovY, m_near, m_far;
-    int mVpWidth, mVpHeight;
+  void rotateAroundTarget(float angle, Eigen::Vector3f axis);
+
+  void moveForward(float x);
+  void moveBackward(float x);
+  void moveLeft(float x);
+  void moveRight(float x);
+  void moveUp(float x);
+  void moveDown(float x);
+  void lookUp(float x);
+  void lookDown(float x);
+
+  /** Returns the affine transformation matrix from the global space to the camera space */
+  const Eigen::Matrix4f &viewMatrix() const;
+  /** Returns the perspective projection matrix */
+  Eigen::Matrix4f projectionMatrix() const;
+
+  void setViewport(int width, int height);
+
+  int vpWidth() const { return mVpWidth; }
+  int vpHeight() const { return mVpHeight; }
+
+protected:
+  Eigen::Matrix4f mViewMatrix;
+  Eigen::Vector3f mTarget;
+  float m_fovY, m_near, m_far;
+  int mVpWidth, mVpHeight;
 };
 
 #endif // EIGEN_CAMERA_H
