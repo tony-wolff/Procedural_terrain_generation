@@ -62,7 +62,7 @@ void QuadTree::createNode(QTNode parent) {
         // C'est dans le main (ou mesh.cpp) qu'on construira les vertex3F avec la valeur de hauteur 
         for (int x = parent.minX; x < parent.width; x++) {
             for (int z = parent.minZ; z < parent.height; z++) {
-                parent.vertices.pushback(Vertex( Vector2f(x, z) ));
+                parent.vertices.push_back(Vector2f(x, z));
             }
         }
     }

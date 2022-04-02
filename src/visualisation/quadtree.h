@@ -1,5 +1,6 @@
 #include <Eigen/Dense>
 #include <vector>
+#include "opengl.h"
 
 using namespace std;
 using namespace Eigen;
@@ -14,7 +15,7 @@ class QuadTree
       int width, height;
       float minX, maxX, minZ, maxZ;
       
-      vector<Vertex> vertices;
+      vector<Vector2f> vertices;
       unsigned int childrenIndex[4];
     } QTNode;
 
