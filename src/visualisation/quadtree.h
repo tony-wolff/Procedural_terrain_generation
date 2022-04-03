@@ -18,8 +18,6 @@ class QuadTree
       vector<Vector2f> vertices;
       unsigned int childrenIndex[4];
     } QTNode;
-
-    vector<QTNode> nodearray;
     unsigned int width;
     unsigned int height;
     unsigned int nodeIndex;
@@ -27,6 +25,8 @@ class QuadTree
     void createNode(QTNode parent);
 
   public:
+    vector<QTNode> nodearray;
+
     QuadTree(float minX, float maxX, float minZ, float maxZ, int width, int height);
     QuadTree();
     QuadTree(MatrixXf heightmap);
