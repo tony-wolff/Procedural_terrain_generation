@@ -33,15 +33,19 @@ QuadTree::QuadTree(MatrixXf heightmap) {
     }
 }
 
-QuadTree::QuadTree(float minX, float maxX, float minZ, float maxZ, int width, int height) {
+QuadTree::QuadTree(float minX, float maxX, float minZ, float maxZ, int _width, int _height) {
     // Notre première node englobe tout le terrain
     QTNode root;
     root.minX = minX;
     root.maxX = maxX;
     root.minZ = minZ;
     root.maxZ = maxZ;
-    root.width = width;
-    root.height = height;
+    root.width = _width;
+    root.height = _height;
+
+    width = _width;
+    height = _height;
+
 
     root.level = 0;
 
@@ -52,47 +56,46 @@ void QuadTree::createNode(QTNode parent) {
     // A définir
     float threshold = 0.0f;
 
-    // Une fois le cap de triangle atteinds (8 pour une image de 512)
-    // On créer les vertex dans les feuilles 
-    // Dedans on enregistre les positions (On récuperera la valeur de y plus tard ?)
+    // Une fois le cap de triangle atteind
     if ((parent.minZ - parent.maxZ) == threshold) {
-
-        // On calcule les vertex des triangle
-        // Il faudra aussi récupérer la scale du terrain
-        // C'est dans le main (ou mesh.cpp) qu'on construira les vertex3F avec la valeur de hauteur 
-        for (int x = parent.minX; x < parent.width; x++) {
-            for (int z = parent.minZ; z < parent.height; z++) {
-                parent.vertices.push_back(Vector2f(x, z));
-            }
-        }
+        return;    
     }
     // Sinon on continue récursivement à créer les enfants
     // J'en créer qu'un ici mais normalement on en créer 4
     else {
-        QTNode childNode;
+        QTNode currentNode;
         
         // Paramètres valable pour tout les fils
-        childNode.width = parent.width / 2;
-        childNode.height = parent.height / 2;
-        childNode.level = parent.level + 1;
+        currentNode.width = parent.minZ - parent.maxZ;
+        currentNode.height = parent.minX - parent.maxX;
+
+        nodeIndex++;
+        nodearray.push_back(currentNode);
+
+        int divs = (width / pow(2, parent.level));
+
+        for (int x = parent.minX; x < parent.maxX; x += parent.maxX / divs)
+            for (int z = parent.minZ; z < parent.maxZ; z += parent.maxZ / divs)
+                parent.vertices.push_back(Vector2f(x, z));
+
+        QTNode childNode;
+
+        childNode.width = currentNode.width / 2;
+        childNode.height = currentNode.height / 2;
+
         /* 
         * Fils en bas à gauche
         */
-
         childNode.minX = parent.minX;
         childNode.maxX = parent.minX + childNode.width;
         childNode.minZ = parent.minZ;
         childNode.maxZ = parent.minZ + childNode.height;
+        childNode.level = parent.level + 1;
 
-        nodeIndex++;
-        // On sauvegarde l'index du children dans le tableau du node current
-        nodearray.push_back(childNode);
+        
         parent.childrenIndex[0] = nodeIndex;
-
         createNode(childNode);
 
-        /* Redondance de code mais on voudra surement faire des traitements spécifique pour chaque fils */
-        nodeIndex++;
         /*
         * Fils en bas à droite
         */
@@ -100,12 +103,10 @@ void QuadTree::createNode(QTNode parent) {
         childNode.maxX = parent.width;
         childNode.minZ = parent.minZ;
         childNode.maxZ = parent.minZ + childNode.height;
+        childNode.level = parent.level + 1;
 
-        nodearray.push_back(childNode);
         parent.childrenIndex[1] = nodeIndex;
         createNode(childNode);
-        
-        nodeIndex++;
         /*
         * Fils en haut à gauche
         */
@@ -113,12 +114,11 @@ void QuadTree::createNode(QTNode parent) {
         childNode.maxX = parent.minX + childNode.width;
         childNode.minZ = parent.minZ + childNode.height;
         childNode.maxZ = parent.height;
+        childNode.level = parent.level + 1;
 
-        nodearray.push_back(childNode);
         parent.childrenIndex[2] = nodeIndex;
         createNode(childNode);
 
-        nodeIndex++;
         /*
         * Fils en haut à droite
         */
@@ -126,7 +126,8 @@ void QuadTree::createNode(QTNode parent) {
         childNode.maxX = parent.width;
         childNode.minZ = parent.minZ + childNode.height;
         childNode.maxZ = parent.height;
-        nodearray.push_back(childNode);
+        childNode.level = parent.level + 1;
+
         parent.childrenIndex[3] = nodeIndex;
         createNode(childNode);
     }
