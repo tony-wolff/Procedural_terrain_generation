@@ -5,6 +5,8 @@
 using namespace std;
 using namespace Eigen;
 
+struct pos {int x, z; };
+
 class QuadTree
 {
   private:
@@ -15,9 +17,10 @@ class QuadTree
       int width, height;
       float minX, maxX, minZ, maxZ;
       
-      vector<Vector2f> vertices;
+      pos vertices[3][3];
       unsigned int childrenIndex[4];
     } QTNode;
+
     unsigned int width;
     unsigned int height;
     unsigned int nodeIndex;

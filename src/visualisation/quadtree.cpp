@@ -69,14 +69,20 @@ void QuadTree::createNode(QTNode parent) {
         currentNode.width = parent.width;
         currentNode.height = parent.height;
 
-        nodeIndex++;
-        nodearray.push_back(currentNode);
+        currentNode.minX = parent.minX;
+        currentNode.maxX = parent.maxX;
+        currentNode.minZ = parent.minZ;
+        currentNode.maxZ = parent.maxZ;
 
         int divs = (width / pow(2, parent.level));
 
-        for (int x = parent.minX; x < parent.maxX; x += parent.maxX / divs)
-            for (int z = parent.minZ; z < parent.maxZ; z += parent.maxZ / divs)
-                parent.vertices.push_back(Vector2f(x, z));
+        for (int x = 0; x < 3; x ++)
+            for (int z = 0; z < 3; z ++) {
+                currentNode.vertices[x][z].x = currentNode.minX + (divs * x);
+                currentNode.vertices[x][z].z = currentNode.minZ + (divs * z);
+            }
+
+        nodearray.push_back(currentNode);
 
         QTNode childNode;
 
@@ -92,7 +98,7 @@ void QuadTree::createNode(QTNode parent) {
         childNode.maxZ = parent.minZ + childNode.height;
         childNode.level = parent.level + 1;
 
-        
+        nodeIndex++;
         parent.childrenIndex[0] = nodeIndex;
         createNode(childNode);
 
@@ -105,6 +111,7 @@ void QuadTree::createNode(QTNode parent) {
         childNode.maxZ = parent.minZ + childNode.height;
         childNode.level = parent.level + 1;
 
+        nodeIndex++;
         parent.childrenIndex[1] = nodeIndex;
         createNode(childNode);
         /*
@@ -116,6 +123,7 @@ void QuadTree::createNode(QTNode parent) {
         childNode.maxZ = parent.height;
         childNode.level = parent.level + 1;
 
+        nodeIndex++;
         parent.childrenIndex[2] = nodeIndex;
         createNode(childNode);
 
@@ -128,6 +136,7 @@ void QuadTree::createNode(QTNode parent) {
         childNode.maxZ = parent.height;
         childNode.level = parent.level + 1;
 
+        nodeIndex++;
         parent.childrenIndex[3] = nodeIndex;
         createNode(childNode);
     }
