@@ -54,7 +54,8 @@ QuadTree::QuadTree(float minX, float maxX, float minZ, float maxZ, int _width, i
 
 void QuadTree::createNode(QTNode parent) {
     // A définir
-    float threshold = width * pow(0.5, 6);
+    int maxLevel = 8;
+    float threshold = width * pow(0.5, maxLevel);
     
     // Une fois le cap de triangle atteind
     if ((parent.height) == threshold) {
@@ -73,13 +74,25 @@ void QuadTree::createNode(QTNode parent) {
         currentNode.maxX = parent.maxX;
         currentNode.minZ = parent.minZ;
         currentNode.maxZ = parent.maxZ;
+        currentNode.level = parent.level;
 
         int divs = (width / pow(2, parent.level));
 
         for (int x = 0; x < 3; x ++)
             for (int z = 0; z < 3; z ++) {
-                currentNode.vertices[x][z].x = currentNode.minX + (divs * x);
-                currentNode.vertices[x][z].z = currentNode.minZ + (divs * z);
+                int posX = currentNode.minX + (divs * x);
+                int posZ = currentNode.minZ + (divs * z);
+                if (posX > 0)
+                    posX--;
+                if (posZ > 0)
+                    posZ--;
+                if (posX >= width)
+                    posX = width - 1;
+                if (posZ >= height)
+                    posZ = height - 1;
+
+                currentNode.vertices[x][z].x = posX;
+                currentNode.vertices[x][z].z = posZ;
             }
 
         nodearray.push_back(currentNode);
