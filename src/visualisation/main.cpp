@@ -1,6 +1,8 @@
 #include "opengl.h"
 #include "viewer.h"
 #include <iostream>
+#include "heightMapGen.h"
+
 Viewer* v;
 
 int WIDTH = 600;
@@ -95,6 +97,8 @@ int main (int /*argc*/, char **/*argv*/)
     GLFWwindow* window = initGLFW();
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
+    heightMapGen *H = new heightMapGen();
+    H->save();
     v = new Viewer();
     v->init(w,h);
 
