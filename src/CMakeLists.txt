@@ -4,9 +4,9 @@ project(planet_generation)
 add_subdirectory(ext/glfw)
 add_subdirectory(ext/glbinding)
 
-
 include_directories(ext/glfw/include)
 include_directories(ext/glbinding/include)
+include_directories(ext/noiseutils)
 include_directories(ext/eigen3)
 include_directories(ext/)
 include_directories(/usr/local/include)
@@ -34,6 +34,9 @@ set(SRC_FILES
     visualisation/quadtree.h
     visualisation/maploader.cpp
     visualisation/maploader.h
+    visualisation/heightMapGen.cpp
+    visualisation/heightMapGen.h
+    ext/noiseutils/noiseutils.cpp
     )
 
 add_definitions(-DDATA_DIR="${PROJECT_SOURCE_DIR}/../data")
@@ -48,15 +51,17 @@ target_compile_options(glfw PRIVATE "-w")
 target_compile_options(glbinding PRIVATE "-w")
 
 set_source_files_properties(ext/eigen3
-                            PROPERTIES
-                            COMPILE_FLAGS -Wno-unused-parameter)
+                            PROPERTIES)
+                            #COMPILE_FLAGS -Wno-unused-parameter)
 
 target_include_directories(planet_generation PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                             $<INSTALL_INTERFACE:include>
                             ${ImageMagick_INCLUDE_DIRS})
 
-target_link_libraries(planet_generation PUBLIC glfw ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS} ${ImageMagick_LIBRARIES} glbinding)
+target_include_directories(planet_generation PUBLIC 
+                            /usr/local/include/noise)
+target_link_libraries(planet_generation PUBLIC noise glfw ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS} ${ImageMagick_LIBRARIES} glbinding)
 
 function(IndicateExternalFile _target)
     foreach(_file IN ITEMS ${ARGN})
