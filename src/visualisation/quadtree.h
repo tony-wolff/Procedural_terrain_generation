@@ -39,5 +39,6 @@ class QuadTree
     QuadTree(const QuadTree&);
     ~QuadTree();
     vector<double> getResult(int level);
+    bool setVisible(QTNode currentNode, Vector3f position, float range);
 
 };

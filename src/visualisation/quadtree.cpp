@@ -65,6 +65,7 @@ void QuadTree::createNode(QTNode parent)
     // Une fois le cap de triangle atteint
     if ((parent.height) == threshold) 
     {
+        parent.leaf = true;
         return;
     }
     // Sinon on continue récursivement à créer les enfants
@@ -186,4 +187,37 @@ vector<double> QuadTree::getResult(int level)
     }
 
     return vect;
+}
+
+
+float distance(int x, int z, int x1, int z1) {
+    return sqrt(pow((x - x1), 2) + pow((z - z1), 2));
+}
+
+bool QuadTree::setVisible(QTNode currentNode, Vector3f position, float range) {
+    // Stopping condition
+    if (currentNode.leaf) {
+        return false;
+    }
+
+    float topLeft = distance(currentNode.minX, currentNode.maxZ, position.x(), position.z());
+    float topRight = distance(currentNode.maxX, currentNode.maxZ, position.x(), position.z());
+    float bottomLeft = distance(currentNode.minX, currentNode.minZ, position.x(), position.z());
+    float bottomRight = distance(currentNode.maxX, currentNode.minZ, position.x(), position.z());
+
+    if (topLeft < range || topRight < range || bottomLeft < range || bottomRight < range) {
+        currentNode.visible = true;
+
+        // Recurse over all childs && set the current to false if they're all visible
+        if (setVisible(nodearray.at(currentNode.childrenIndex[0]), position, range) 
+            && setVisible(nodearray.at(currentNode.childrenIndex[1]), position, range)
+            && setVisible(nodearray.at(currentNode.childrenIndex[2]), position, range)
+            && setVisible(nodearray.at(currentNode.childrenIndex[3]), position, range))
+             {
+                currentNode.visible = false;
+             }
+        return true;
+    }
+
+    return false;
 }
