@@ -1,3 +1,0 @@
-/home/athom/workspace/pdp-procedural_planet_generation/src/visualisation/scratch/build/CMakeFiles/rebuild_cache.dir
-/home/athom/workspace/pdp-procedural_planet_generation/src/visualisation/scratch/build/CMakeFiles/edit_cache.dir
-/home/athom/workspace/pdp-procedural_planet_generation/src/visualisation/scratch/build/CMakeFiles/planet_generation.dir
