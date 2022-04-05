@@ -36,6 +36,9 @@ public:
   /** Send the mesh to OpenGL for drawing using shader \a shd */
   virtual void draw(const Shader &shd);
 
+  /** Quadtree **/
+
+  void drawQTTerrain();
   unsigned int getRaw_width();
   unsigned int getRaw_height();
 

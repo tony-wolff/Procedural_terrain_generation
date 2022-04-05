@@ -128,7 +128,7 @@ void Mesh::draw(const Shader &shd)
   // send the geometry
   glDrawElements(GL_TRIANGLES, 3*mFaces.size(), GL_UNSIGNED_INT, 0);
 
-  // at this point the mesh has been drawn and raserized into the framebuffer!
+  // at this point the mesh has been drawn and rasterized into the framebuffer!
   if(vertex_loc>=0) glDisableVertexAttribArray(vertex_loc);
   if(normal_loc>=0) glDisableVertexAttribArray(normal_loc);
   if(color_loc>=0)  glDisableVertexAttribArray(color_loc);
@@ -188,10 +188,10 @@ bool Mesh::loadPNG(const std::string& filename)
     
     vector<double> qtMat = qt->getResult(0);
     // Getting the width and height 
-    raw_height = (hmapMat.rows() - 1);
-    raw_width = (hmapMat.cols() - 1);
+    raw_height = (hmapMat.rows());
+    raw_width = (hmapMat.cols());
     vertexNum = raw_width * raw_height;
-    facesNum = ((raw_width-1) * (raw_height-1)) * 2;
+    facesNum = ((raw_width) * (raw_height)) * 2;
     mVertices.resize(vertexNum);
     mFaces.reserve(facesNum);
 
@@ -201,8 +201,10 @@ bool Mesh::loadPNG(const std::string& filename)
     std::cout << "facesNum : " << facesNum << std::endl;
 
     // Acces image pixel by pixel
-    for(unsigned int x = 0; x < raw_width; ++x) {
-        for(unsigned int z = 0; z < raw_height; ++z) {
+    for(unsigned int x = 0; x < raw_width; ++x)
+    {
+        for(unsigned int z = 0; z < raw_height; ++z)
+        {
             unsigned int offset = x * raw_width + z;
 
             mVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
@@ -211,10 +213,14 @@ bool Mesh::loadPNG(const std::string& filename)
         }
     }
 
-    for(unsigned int x = 0; x < raw_width-1; ++x) {
-        for(unsigned int z = 0; z < raw_height-1; ++z) {
+    for(unsigned int x = 0; x < raw_width-1; ++x)
+    {
+        for(unsigned int z = 0; z < raw_height-1; ++z)
+        {
             unsigned int offset = x * raw_width + z;
-            if(mVertices[offset].visible == true) {
+
+            if(mVertices[offset].visible == true)
+            {
                 unsigned int a = x * raw_width + z;
                 unsigned int b = (x+1) * raw_width + z;
                 unsigned int c = (x+1) * raw_width + (z+1);
@@ -223,16 +229,77 @@ bool Mesh::loadPNG(const std::string& filename)
                 mFaces.push_back(Vector3i(c, b, a));
                 mFaces.push_back(Vector3i(a, d, c));
             }
-            
         }
     }
 
-
     computeNormals();
   
-
   return true;
 }
+
+// void Mesh::drawQTTerrain()
+// {
+//     QuadTree* qtTest = new QuadTree(0, 512, 0, 512, 512, 512);
+
+//     std::cout << "------- QuadTree build -------" << std::endl;
+//     std::cout << qtTest->nodearray.size() << " node created" << std::endl;
+
+//     int vx, vz;
+//     int indexVertices = 0;
+//     mVertices.resize(qtTest->nodearray.size() * 8);
+
+//     for (int i = 0; i < qtTest->nodearray.size(); i++)
+//     {
+//       if (qtTest->nodearray.at(i).level <= 6)
+//       {
+//         //std::cout << "Begin node draw" << std::endl;
+//         for (int x = 0; x < 2; x++)
+//         {
+//           for (int z = 0; z < 2; z++)
+//           {
+//             /*std::cout << "------ -------" << std::endl;
+//             std::cout << "height : " << hmapMat.rows() << " width " << hmapMat.cols() << std::endl;*/
+
+//             vx = qtTest->nodearray.at(i).vertices[x][z].x;
+//             vz = qtTest->nodearray.at(i).vertices[x][z].z;
+            
+//             //std::cout << vx << " -- " << vz << endl;
+//             mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (hmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+//             mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
+//             mVertices[indexVertices].visible = true;
+
+//             indexVertices++;
+//             vx = qtTest->nodearray.at(i).vertices[x][z+1].x ;
+//             vz = qtTest->nodearray.at(i).vertices[x][z+1].z;
+            
+//             //std::cout << vx << " -- " << vz << endl;
+//             mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (hmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+//             mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
+//             mVertices[indexVertices].visible = true;
+
+//             indexVertices++;
+//             vx = qtTest->nodearray.at(i).vertices[x+1][z].x;
+//             vz = qtTest->nodearray.at(i).vertices[x+1][z].z;
+            
+//             //std::cout << vx << " -- " << vz << endl;
+//             mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (hmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+//             mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
+//             mVertices[indexVertices].visible = true;
+
+//             indexVertices++;
+//             vx = qtTest->nodearray.at(i).vertices[x+1][z+1].x;
+//             vz = qtTest->nodearray.at(i).vertices[x+1][z+1].z;
+            
+//             //std::cout << vx << " -- " << vz << endl;
+//             mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (hmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+//             mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
+//             mVertices[indexVertices].visible = true;
+//             indexVertices++;
+//           }
+//         }
+//       }
+//     }
+// }
 
 
 /*bool Mesh::loadOFF(const std::string& filename)

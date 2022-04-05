@@ -30,7 +30,7 @@ int MapLoader::ReadMap(const std::string& filename, MatrixXf* matrix)
     } 
     catch(Exception &error_) 
     { 
-        cerr << "Caught Magick++ exception openings file " << filename << ": "<< error_.what() << endl;
+        cerr << "Caught Magick++ exception opening file " << filename << ": "<< error_.what() << endl;
         return -1;
     }
 

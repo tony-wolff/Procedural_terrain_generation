@@ -10,7 +10,8 @@ struct pos {int x, z; };
 class QuadTree
 {
   private:
-    typedef struct {
+    typedef struct
+    {
       ssize_t x, z;
       double y;
       int level;
@@ -19,6 +20,8 @@ class QuadTree
       
       pos vertices[3][3];
       unsigned int childrenIndex[4];
+
+      bool visible;
     } QTNode;
 
     unsigned int width;

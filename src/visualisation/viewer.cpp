@@ -23,7 +23,7 @@ void Viewer::init(int w, int h)
   glClearColor(0.0, 0.0, 0.0, 0.0);
 
   loadShaders();
-  if (!_mesh.load(DATA_DIR "/textures/Terrain.jpg"))
+  if (!_mesh.load(DATA_DIR "/textures/Terrain.png"))
     exit(1);
   _mesh.initVBA();
 

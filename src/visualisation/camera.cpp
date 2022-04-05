@@ -90,12 +90,12 @@ void Camera::moveLeft(float x)
 
 void Camera::lookUp(float x)
 {
-  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, Vector3f::UnitX())) * mViewMatrix;
+  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, -Vector3f::UnitX())) * mViewMatrix;
 }
 
 void Camera::lookDown(float x)
 {
-  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitX())) * mViewMatrix;
+  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, -Vector3f::UnitX())) * mViewMatrix;
 }
 
 void Camera::lookRight(float x)
