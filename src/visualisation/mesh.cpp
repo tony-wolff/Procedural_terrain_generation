@@ -181,7 +181,7 @@ bool Mesh::loadPNG(const std::string& filename)
     MapLoader* m_loader = new MapLoader();
 
     MatrixXf hmapMat;
-    m_loader->ReadMap(filename, &hmapMat);
+    m_loader->ReadMapMatrix(filename, &hmapMat);
 
     // We build the QuadTree & get the first lod
     QuadTree* qt = new QuadTree(hmapMat);

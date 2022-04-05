@@ -26,8 +26,8 @@ set(SRC_FILES
     visualisation/opengl.h
     visualisation/camera.h
     visualisation/camera.cpp
-    visualisation/mesh.h
-    visualisation/mesh.cpp
+    visualisation/terrain.h
+    visualisation/terrain.cpp
     visualisation/trackball.cpp
     visualisation/trackball.h
     visualisation/quadtree.cpp

@@ -23,17 +23,17 @@ void Viewer::init(int w, int h)
   glClearColor(0.0, 0.0, 0.0, 0.0);
 
   loadShaders();
-  if (!_mesh.load(DATA_DIR "/textures/Terrain.png"))
+  if (_terrain.loadHeightmap(DATA_DIR "/textures/Terrain.png") == -1)
     exit(1);
-  _mesh.initVBA();
+  _terrain.initVBA();
 
   reshape(w, h);
   _cam.setPerspective(M_PI / 3, 0.3f, 20000.0f);
   //_cam.setPerspective(0, 10000.0f, 0);
-  //_cam.lookAt(Vector3f(_mesh.getRaw_width() / 2, 100, _mesh.getRaw_height() / 2), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
+  //_cam.lookAt(Vector3f(_terrain.getRaw_width() / 2, 100, _terrain.getRaw_height() / 2), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
   //_cam.lookAt(Vector3f(-100.0f, 100.0f, -100.0f), Vector3f(5.0f, 0.0f, 1.0f), Vector3f(0, 4, 0));
   //_cam.lookAt(Vector3f(-100.0f, 150.0f, -130.0f), Vector3f(5.0f, 50.0f, 30.0f), Vector3f(0, 10, 0));
-  _cam.lookAt(Vector3f(_mesh.getRaw_width(), _mesh.getRaw_height()/2, _mesh.getRaw_height()), Vector3f(1, 1, 1), Vector3f(0, 1, 0));
+  _cam.lookAt(Vector3f(_terrain.getRaw_width(), _terrain.getRaw_height()/2, _terrain.getRaw_height()), Vector3f(1, 1, 1), Vector3f(0, 1, 0));
 
   _trackball.setCamera(&_cam);
 
@@ -74,7 +74,7 @@ void Viewer::drawScene()
   lightDir = (matLocal2Cam.topLeftCorner<3, 3>() * lightDir).normalized();
   glUniform3fv(_shader.getUniformLocation("lightDir"), 1, lightDir.data());
 
-  _mesh.draw(_shader);
+  _terrain.draw(_shader);
 
   if (_wireframe)
   {
@@ -82,7 +82,7 @@ void Viewer::drawScene()
     glEnable(GL_LINE_SMOOTH);
     glDepthFunc(GL_LEQUAL);
     glUniform1i(_shader.getUniformLocation("wireframe"), 1);
-    _mesh.draw(_shader);
+    _terrain.draw(_shader);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glUniform1i(_shader.getUniformLocation("wireframe"), 0);
   }
@@ -99,7 +99,7 @@ void Viewer::updateAndDrawScene()
 
 void Viewer::loadShaders()
 {
-  // Here we can load as many shaders as we want, currently we have only one:
+  // Here we can load as many shaders as we want
   _shader.loadFromFiles(DATA_DIR "/shaders/simple.vert", DATA_DIR "/shaders/simple.frag");
   checkError();
 }
@@ -169,7 +169,7 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
     }
     else if (key == GLFW_KEY_S)
     {
-      //_mesh.subdivide();
+      //_terrain.subdivide();
     }
   }
 

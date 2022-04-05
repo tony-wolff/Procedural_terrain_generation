@@ -5,7 +5,8 @@
 #include "shader.h"
 #include "camera.h"
 #include "trackball.h"
-#include "mesh.h"
+// #include "mesh.h"
+#include "terrain.h"
 
 #include <iostream>
 
@@ -34,7 +35,8 @@ private:
 
     Camera _cam;
     Shader _shader;
-    Mesh   _mesh;
+    Terrain _terrain;
+    // Mesh   _mesh;
 
     float _theta;
     bool _rotate;

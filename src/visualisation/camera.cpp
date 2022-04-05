@@ -16,6 +16,10 @@ Camera::Camera()
 void Camera::lookAt(const Vector3f &position, const Vector3f &target, const Vector3f &up)
 {
   mTarget = target;
+  mPosition = position;
+  mForward = Vector3f(position.x(), position.y(), position.z() + 100.f);
+  mUp = Vector3f(position.x(), position.y() + 100.f, position.z());
+  mRight = Vector3f(position.x() + 100.f, position.y(), position.z());
 
   Matrix3f R;
   R.col(2) = (position - target).normalized();
@@ -90,12 +94,12 @@ void Camera::moveLeft(float x)
 
 void Camera::lookUp(float x)
 {
-  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, -Vector3f::UnitX())) * mViewMatrix;
+  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, Vector3f::UnitX())) * mViewMatrix;
 }
 
 void Camera::lookDown(float x)
 {
-  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, -Vector3f::UnitX())) * mViewMatrix;
+  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitX())) * mViewMatrix;
 }
 
 void Camera::lookRight(float x)
@@ -107,6 +111,8 @@ void Camera::lookLeft(float x)
 {
   mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitY())) * mViewMatrix;
 }
+
+
 
 
 

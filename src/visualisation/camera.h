@@ -41,10 +41,23 @@ public:
 
   int vpWidth() const { return mVpWidth; }
   int vpHeight() const { return mVpHeight; }
+  float getFovY() const { return m_fovY; }
+  float getNear() const { return m_near; }
+  float getFar() const { return m_far; }
+  Eigen::Vector3f getPosition() {return mPosition;}
+  Eigen::Vector3f getForward() {return mForward;}
+  Eigen::Vector3f getUp() {return mUp;}
+  Eigen::Vector3f getRight() {return mRight;}
 
 protected:
   Eigen::Matrix4f mViewMatrix;
   Eigen::Vector3f mTarget;
+
+  Eigen::Vector3f mPosition;
+  Eigen::Vector3f mForward;
+  Eigen::Vector3f mUp;
+  Eigen::Vector3f mRight;
+
   float m_fovY, m_near, m_far;
   int mVpWidth, mVpHeight;
 };

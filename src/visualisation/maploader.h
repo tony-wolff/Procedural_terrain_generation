@@ -7,30 +7,16 @@
 #include <Eigen/Dense>
 #include <ImageMagick-7/Magick++.h>
 
-using namespace std;
-using namespace Eigen;
 using namespace Magick;
+using namespace Eigen;
 
-extern const string heightmap_location;
+// extern const string heightmap_location;
 
 class MapLoader
 {
 private:
 	int m_mapHeight, m_mapWidth;
-
-    struct MapDimensions
-    {
-	unsigned int minX;
-	unsigned int minY;
-	unsigned int minZ = 255;
-	unsigned int sizeX;
-	unsigned int sizeY;
-	unsigned int sizeZ;
-
-	unsigned int MaxX() const   { return minX + sizeX; }
-	unsigned int MaxY() const   { return minY + sizeY; }
-	unsigned int MaxZ() const   { return minZ + sizeZ; }
-    };
+	int m_vertexCount;
 
 public:
 
@@ -38,11 +24,9 @@ public:
 	MapLoader(const MapLoader&);
 	~MapLoader();
 
-	/* Read the image in 'any' format, return -1 if the files can't be loaded, 0 otherwise */
-	int ReadMap(const std::string& filename, MatrixXf* mat);
+	/* Read the image in 'any' format and return a Eigen::Matrix containing the values in the heightmap */
+	int ReadMapMatrix(const std::string& filename, MatrixXf* matrix);
 
-private:
-
-	MapDimensions* m_mapDimensions;
-	int m_vertexCount;
+	/* Read the image in 'any' format and return a Vector containing the values in the heightmap */
+	int ReadMapVector(const std::string& filename, std::vector<float> vertices);
 };
