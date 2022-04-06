@@ -49,24 +49,73 @@ void Mesh::computeNormals()
         v_iter->normal.normalize();*/
 }
 
-void Mesh::initVBA()
+void Mesh::init()
 {
-  // create the BufferObjects and copy the related data into them.
 
-  // create a VBO identified by a unique index:
+  glGenVertexArrays(1,&mVertexArrayId);
   glGenBuffers(1,&mVertexBufferId);
+  glGenBuffers(1,&mIndexBufferId);
+
+  Rmem();
+
+  updateVBO();
+
+  mIsInitialized = true;
+}
+
+void Mesh::updateVBO()
+{
+  Rmem();
+  
+  glBindVertexArray(mVertexArrayId);
+
   // activate the VBO:
   glBindBuffer(GL_ARRAY_BUFFER, mVertexBufferId);
   // copy the data from host's RAM to GPU's video memory:
   glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*mVertices.size(), mVertices[0].position.data(), GL_STATIC_DRAW);
-  
-  glGenBuffers(1,&mIndexBufferId);
+
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBufferId);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Vector3i)*mFaces.size(), mFaces[0].data(), GL_STATIC_DRAW);
+
+
+}
+
+void Mesh::Rmem() {
+  long unsigned int f1 = initVertices.size();
+  if(!mIsInitialized) {
+    for(long unsigned int i = 0; i < f1; i++) {
+      mVertices.push_back(initVertices[i]);
+    }
+  }
+  else {
+    mVertices.clear();
+    mFaces.clear();
+    for(long unsigned int i = 0; i < f1; i++) {
+      if(i < f1/2)
+        mVertices.push_back(initVertices[i]);
+      else
+        initVertices[i].visible = false;
+    }
+
+    for(unsigned int x = 0; x < raw_width-1; ++x)
+    {
+        for(unsigned int z = 0; z < raw_height-1; ++z)
+        {
+                unsigned int a = x * raw_width + z;
+                unsigned int b = (x+1) * raw_width + z;
+                unsigned int c = (x+1) * raw_width + (z+1);
+                unsigned int d = x * raw_width + (z+1);
+
+                if(!initVertices[a].visible) break;
+                if(!initVertices[b].visible) break;
+                if(!initVertices[c].visible) break;
+                mFaces.push_back(Vector3i(c, b, a));
+                if(!initVertices[d].visible) break;
+                mFaces.push_back(Vector3i(a, d, c));
+        }
+    }
+  }
   
-  glGenVertexArrays(1,&mVertexArrayId);
-  
-  mIsInitialized = true;
 }
 
 Mesh::~Mesh()
@@ -81,6 +130,9 @@ Mesh::~Mesh()
 
 void Mesh::draw(const Shader &shd)
 {
+      if (!mIsInitialized)
+        init();
+
   // Activate the VBO of the current mesh:
   glBindVertexArray(mVertexArrayId);
   glBindBuffer(GL_ARRAY_BUFFER, mVertexBufferId);
@@ -192,7 +244,8 @@ bool Mesh::loadPNG(const std::string& filename)
     raw_width = (hmapMat.cols());
     vertexNum = raw_width * raw_height;
     facesNum = ((raw_width) * (raw_height)) * 2;
-    mVertices.resize(vertexNum);
+    //mVertices.resize(vertexNum);
+    initVertices.resize(vertexNum);
     mFaces.reserve(facesNum);
 
     std::cout << "Map Height : " << raw_height << std::endl;
@@ -207,9 +260,9 @@ bool Mesh::loadPNG(const std::string& filename)
         {
             unsigned int offset = x * raw_width + z;
 
-            mVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
-            mVertices[offset].texcoord = Vector2f(x * heightmap_tex_x, z * heightmap_tex_z);
-            mVertices[offset].visible = true;
+            initVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
+            initVertices[offset].texcoord = Vector2f(x * heightmap_tex_x, z * heightmap_tex_z);
+            initVertices[offset].visible = true;
         }
     }
 
@@ -217,10 +270,6 @@ bool Mesh::loadPNG(const std::string& filename)
     {
         for(unsigned int z = 0; z < raw_height-1; ++z)
         {
-            unsigned int offset = x * raw_width + z;
-
-            if(mVertices[offset].visible == true)
-            {
                 unsigned int a = x * raw_width + z;
                 unsigned int b = (x+1) * raw_width + z;
                 unsigned int c = (x+1) * raw_width + (z+1);
@@ -228,7 +277,6 @@ bool Mesh::loadPNG(const std::string& filename)
 
                 mFaces.push_back(Vector3i(c, b, a));
                 mFaces.push_back(Vector3i(a, d, c));
-            }
         }
     }
 

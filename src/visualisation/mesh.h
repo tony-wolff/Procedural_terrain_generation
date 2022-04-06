@@ -29,12 +29,18 @@ public:
 
   void computeNormals();
 
-  /** initialize OpenGL's Vertex Buffer Array (must be called once before
-   * calling draw()) */
-  void initVBA();
+  /** initialize OpenGL's Vertex Buffer Array (must be called once before calling draw()) */
+  void init();
+
+  // Copy vertex attributes from the CPU to GPU memory (needs to be called after editing any vertex attributes: positions, normals, texcoords, masks, etc.)
+  void updateVBO();
+
+  void Rmem();
 
   /** Send the mesh to OpenGL for drawing using shader \a shd */
   virtual void draw(const Shader &shd);
+
+  void UpdateMesh();
 
   /** Quadtree **/
 
@@ -69,6 +75,10 @@ protected:
 
   /** The list of face indices */
   std::vector<Vector3i> mFaces;
+
+  ///Pour tester
+  std::vector<Vertex> initVertices;
+  //std::vector<Vector3i> initFaces;
 
   unsigned int mVertexArrayId;
   unsigned int mVertexBufferId; ///< the id of the BufferObject storing the

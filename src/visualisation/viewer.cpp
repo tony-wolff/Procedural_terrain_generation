@@ -25,7 +25,7 @@ void Viewer::init(int w, int h)
   loadShaders();
   if (!_mesh.load(DATA_DIR "/textures/Terrain.png"))
     exit(1);
-  _mesh.initVBA();
+  _mesh.init();
 
   reshape(w, h);
   _cam.setPerspective(M_PI / 3, 0.3f, 20000.0f);
@@ -214,6 +214,7 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
     else if (key == GLFW_KEY_F)
     {
       _cam.moveRight(0.01);
+      _mesh.updateVBO();
     }
   }
 }
