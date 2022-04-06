@@ -22,6 +22,7 @@ class QuadTree
       unsigned int childrenIndex[4];
 
       bool visible;
+      bool leaf;
     } QTNode;
 
     unsigned int width;
