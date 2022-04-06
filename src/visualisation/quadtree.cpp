@@ -56,35 +56,23 @@ QuadTree::QuadTree(float minX, float maxX, float minZ, float maxZ, int _width, i
     createNode(root);
 }
 
-void QuadTree::createNode(QTNode parent)
+void QuadTree::createNode(QTNode currentNode)
 {
     // A définir
     int maxLevel = 8;
     float threshold = width * pow(0.5, maxLevel);
     
     // Une fois le cap de triangle atteint
-    if ((parent.height) == threshold) 
+    if ((currentNode.height) == threshold) 
     {
-        parent.leaf = true;
+        currentNode.leaf = true;
         return;
     }
     // Sinon on continue récursivement à créer les enfants
     // J'en créer qu'un ici mais normalement on en créer 4
     else
     {
-        QTNode currentNode;
-        
-        // Paramètres valable pour tout les fils
-        currentNode.width = parent.width;
-        currentNode.height = parent.height;
-
-        currentNode.minX = parent.minX;
-        currentNode.maxX = parent.maxX;
-        currentNode.minZ = parent.minZ;
-        currentNode.maxZ = parent.maxZ;
-        currentNode.level = parent.level;
-
-        int divs = (width / pow(2, parent.level));
+        int divs = (width / pow(2, currentNode.level));
 
         for (int x = 0; x < 3; x ++)
         {
@@ -118,57 +106,57 @@ void QuadTree::createNode(QTNode parent)
         /*
         * Fils en haut à gauche
         */
-        childNode.minX = parent.minX;
-        childNode.minZ = parent.minZ;
-        childNode.maxX = parent.minX + childNode.width;
-        childNode.maxZ = parent.minZ + childNode.height;
+        childNode.minX = currentNode.minX;
+        childNode.minZ = currentNode.minZ;
+        childNode.maxX = currentNode.minX + childNode.width;
+        childNode.maxZ = currentNode.minZ + childNode.height;
 
-        childNode.level = parent.level + 1;
+        childNode.level = currentNode.level + 1;
 
         nodeIndex++;
-        parent.childrenIndex[0] = nodeIndex;
+        currentNode.childrenIndex[0] = nodeIndex;
         createNode(childNode);
 
         /*
         * Fils en haut à droite
         */
-        childNode.minX = parent.minX + childNode.width;
-        childNode.minZ = parent.minZ;
-        childNode.maxX = parent.minX + parent.width;
-        childNode.maxZ = parent.minZ + childNode.height;
+        childNode.minX = currentNode.minX + childNode.width;
+        childNode.minZ = currentNode.minZ;
+        childNode.maxX = currentNode.minX + currentNode.width;
+        childNode.maxZ = currentNode.minZ + childNode.height;
 
-        childNode.level = parent.level + 1;
+        childNode.level = currentNode.level + 1;
 
         nodeIndex++;
-        parent.childrenIndex[1] = nodeIndex;
+        currentNode.childrenIndex[1] = nodeIndex;
         createNode(childNode);
 
         /* 
         * Fils en bas à gauche
         */
-        childNode.minX = parent.minX;
-        childNode.minZ = parent.minZ + childNode.height;
-        childNode.maxX = parent.minX + childNode.width;
-        childNode.maxZ = parent.minZ + parent.height;
+        childNode.minX = currentNode.minX;
+        childNode.minZ = currentNode.minZ + childNode.height;
+        childNode.maxX = currentNode.minX + childNode.width;
+        childNode.maxZ = currentNode.minZ + currentNode.height;
 
-        childNode.level = parent.level + 1;
+        childNode.level = currentNode.level + 1;
 
         nodeIndex++;
-        parent.childrenIndex[2] = nodeIndex;
+        currentNode.childrenIndex[2] = nodeIndex;
         createNode(childNode);
 
         /*
         * Fils en bas à droite
         */
-        childNode.minX = parent.minX + childNode.width;
-        childNode.minZ = parent.minZ + childNode.height;
-        childNode.maxX = parent.minX + parent.width;
-        childNode.maxZ = parent.minZ + parent.height;
+        childNode.minX = currentNode.minX + childNode.width;
+        childNode.minZ = currentNode.minZ + childNode.height;
+        childNode.maxX = currentNode.minX + currentNode.width;
+        childNode.maxZ = currentNode.minZ + currentNode.height;
 
-        childNode.level = parent.level + 1;
+        childNode.level = currentNode.level + 1;
 
         nodeIndex++;
-        parent.childrenIndex[3] = nodeIndex;
+        currentNode.childrenIndex[3] = nodeIndex;
         createNode(childNode);
     }
 }
