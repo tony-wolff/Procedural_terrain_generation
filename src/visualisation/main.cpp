@@ -97,8 +97,6 @@ int main (int /*argc*/, char **/*argv*/)
     GLFWwindow* window = initGLFW();
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
-    heightMapGen *H = new heightMapGen();
-    H->save();
     v = new Viewer();
     v->init(w,h);
 

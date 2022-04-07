@@ -1,16 +1,32 @@
 #include "heightMapGen.h"
 #include <iostream>
-heightMapGen::heightMapGen()
+#include <random>
+
+
+void heightMapGen::GeneratePlanarHeightMap(int width, int height)
 {
-    heightMapBuilder.SetSourceModule(pModule);
-    heightMapBuilder.SetDestNoiseMap(heightMap);
-    std::cout << "test\n" << std::endl;
-    heightMapBuilder.SetDestSize(512, 512);
-    std::cout << "test 2\n" << std::endl;
-    heightMapBuilder.SetBounds(2.0, 6.0, 1.0, 5.0);
-    std::cout << "test 3\n" << std::endl;
-    heightMapBuilder.Build();
-    
+    builder_plane.SetSourceModule(pModule);
+    builder_plane.SetDestNoiseMap(heightMap);
+    builder_plane.SetDestSize(width, height);
+    builder_plane.SetBounds(bs.lowerX, bs.upperX, bs.lowerZ, bs.upperZ);
+    builder_plane.Build();
+
+    RenderProcessing();
+}
+
+void heightMapGen::GenerateSphericalHeightMap(int width, int height)
+{
+    builder_sphere.SetSourceModule(pModule);
+    builder_sphere.SetDestNoiseMap(heightMap);
+    builder_sphere.SetDestSize(width, height);
+    builder_sphere.SetBounds(-90.0, 90.0, -180.0, 180.0);
+    builder_sphere.Build();
+
+    RenderProcessing();
+}
+
+void heightMapGen::RenderProcessing()
+{
     renderer.SetSourceNoiseMap(heightMap);
     renderer.SetDestImage(image);
     renderer.EnableLight();
@@ -19,9 +35,85 @@ heightMapGen::heightMapGen()
     renderer.Render();
 }
 
-void heightMapGen::save()
+void heightMapGen::Save(std::string output_file)
 {
     writer.SetSourceImage(image);
-    writer.SetDestFilename(DATA_DIR "/textures/Heightmap.bmp");
+    writer.SetDestFilename(DATA_DIR "/textures/" + output_file);
     writer.WriteDestFile();
+}
+
+void heightMapGen::SetBoundingSquare(double lowerX, double upperX, double lowerZ, double upperZ)
+{
+    bs.lowerX = lowerX;
+    bs.upperX = upperX;
+    bs.lowerZ = lowerZ;
+    bs.upperZ = upperZ;
+}
+
+/**
+ * Controls the number of details in Perlin Noise
+ * The more octaves there are, the noisier it gets.
+ * Each octave has double the frequency of the last one, and a smaller amplitude.
+ * Also increase calculation time
+ * */
+void heightMapGen::SetOctave(int octave)
+{
+    pModule.SetOctaveCount(octave);
+}
+
+/**
+ * Sets the frequency for the first octave
+ * A higher frequency means more terrain features but smaller features.
+ * Values between 1 and 16
+ * */
+void heightMapGen::SetFrequency(double f)
+{
+    pModule.SetFrequency(f);
+}
+
+/**
+ * determines how quickly the amplitudes fall for each successive octave
+ * increasing the value = rougher terrain
+ * decreasing = smoother terrain
+ * Values between 0 and 1
+ * */
+void heightMapGen::SetPersistence(double p)
+{
+    pModule.SetPersistence(p);
+}
+
+int randomBetween(int min, int max)
+{
+    std::random_device seed;
+    std::mt19937 rng(seed());
+    std::uniform_int_distribution<int> uni(min,max);
+    return uni(rng);
+}
+
+double randomBetween(double min, double max)
+{
+    std::random_device seed;
+    std::mt19937 rng(seed());
+    std::uniform_real_distribution<double> uni(min,max);
+    return uni(rng);
+}
+
+
+
+void heightMapGen::GenerateRandomHeightMap(int width, int height)
+{
+    bs.lowerX = randomBetween(MIN_X, MAX_X);
+    bs.upperX = randomBetween((int)bs.lowerX+1, MAX_X);
+    bs.lowerZ = randomBetween(MIN_Z, MAX_Z);
+    bs.upperZ = randomBetween((int)bs.lowerZ+1, MAX_Z);
+
+    SetOctave(randomBetween(1, 8));
+    SetFrequency(randomBetween(1, 16));
+    SetPersistence(randomBetween(0.0, 1.0));
+    builder_plane.SetSourceModule(pModule);
+    builder_plane.SetDestNoiseMap(heightMap);
+    builder_plane.SetDestSize(width, height);
+    builder_plane.SetBounds(bs.lowerX, bs.upperX, bs.lowerZ, bs.upperZ);
+    builder_plane.Build();
+    RenderProcessing();
 }

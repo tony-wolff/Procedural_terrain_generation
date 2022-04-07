@@ -1,5 +1,9 @@
 # Pdp-Procedural_Planet_Generation
 
+## Required libraries
+ImageMagick 7 : https://github.com/ImageMagick/ImageMagick
+Libnoise : https://github.com/qknight/libnoise
+
 ## How to build
 
 ```
