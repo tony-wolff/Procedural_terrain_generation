@@ -1,5 +1,6 @@
 #include "viewer.h"
 #include "camera.h"
+#include "mesh.h"
 
 using namespace Eigen;
 
@@ -33,7 +34,7 @@ void Viewer::init(int w, int h)
   //_cam.lookAt(Vector3f(_mesh.getRaw_width() / 2, 100, _mesh.getRaw_height() / 2), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
   //_cam.lookAt(Vector3f(-100.0f, 100.0f, -100.0f), Vector3f(5.0f, 0.0f, 1.0f), Vector3f(0, 4, 0));
   //_cam.lookAt(Vector3f(-100.0f, 150.0f, -130.0f), Vector3f(5.0f, 50.0f, 30.0f), Vector3f(0, 10, 0));
-  _cam.lookAt(Vector3f(_mesh.getRaw_width(), _mesh.getRaw_height()/2, _mesh.getRaw_height()), Vector3f(1, 1, 1), Vector3f(0, 1, 0));
+  _cam.lookAt(Vector3f(_mesh.getRaw_width(), _mesh.getRaw_height() / 2, _mesh.getRaw_height()), Vector3f(1, 1, 1), Vector3f(0, 1, 0));
 
   _trackball.setCamera(&_cam);
 
@@ -73,6 +74,9 @@ void Viewer::drawScene()
   Vector3f lightDir = Vector3f(1, 0, 1).normalized();
   lightDir = (matLocal2Cam.topLeftCorner<3, 3>() * lightDir).normalized();
   glUniform3fv(_shader.getUniformLocation("lightDir"), 1, lightDir.data());
+
+  /* Matrix4f perspective = _cam.setPerspective(M_PI / 3, 0.3f, 20000.0f);
+   Matrix4f mv = perspective * _cam.viewMatrix();*/
 
   _mesh.draw(_shader);
 
@@ -213,8 +217,10 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
     }
     else if (key == GLFW_KEY_F)
     {
-      _cam.moveRight(0.01);
-      _mesh.updateVBO();
+      //_cam.moveRight(0.01);
+      //_mesh.updateVBO();
+      _mesh.Rmem(_cam.getFovY(), _cam.getNear(), _cam.getFar(), _cam.vpWidth(), _cam.vpHeight(),
+                 _cam.getPosition(), _cam.getForward(), _cam.getUp(), _cam.getRight());
     }
   }
 }
