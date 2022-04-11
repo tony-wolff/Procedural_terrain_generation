@@ -2,7 +2,6 @@
 #include "terrain.h"
 #include "shader.h"
 #include "maploader.h"
-#include "quadtree.h"
 #include <Eigen/Geometry>
 #include <iostream>
 #include <fstream>
@@ -44,7 +43,7 @@ int Terrain::loadHeightmap(const std::string& filename)
     std::cout << "vertexNum : " << vertexNum << std::endl;
     std::cout << "facesNum : " << facesNum << std::endl;
 
-    QuadTree* qtTest = new QuadTree(0, 512, 0, 512, 512, 512);
+    qtTest = new QuadTree(0, 512, 0, 512, 512, 512);
 
     std::cout << "------- QuadTree build -------" << std::endl;
     std::cout << qtTest->nodearray.size() << " node created" << std::endl;
@@ -55,7 +54,7 @@ int Terrain::loadHeightmap(const std::string& filename)
 
     for (int i = 0; i < qtTest->nodearray.size(); i++)
     {
-      if (qtTest->nodearray.at(i).level <= 6)
+      if (qtTest->nodearray.at(i).level <= qtTest->getMaxLevel()-2)
       {
         //std::cout << "Begin node draw" << std::endl;
         for (int x = 0; x < 2; x++)
@@ -250,4 +249,94 @@ unsigned int Terrain::getRaw_width()
 unsigned int Terrain::getRaw_height()
 {
   return raw_height;
+}
+
+
+void Terrain::updateTerrain(Vector3f cam_pos, float range)
+{
+  int vx, vz;
+  unsigned int vertexNum = 0;
+  unsigned int facesNum = 0;
+
+  float heightmap_x = 1;
+  float heightmap_z = 1;
+  float heightmap_y = 1;
+  float heightmap_tex_x = 1;
+  float heightmap_tex_z = 1;
+  int indexVertices = 0;
+  raw_width = (heightmapMat.cols());
+  vertexNum = raw_width * raw_height;
+  facesNum = ((raw_width) * (raw_height)) * 2;
+  mFaces.reserve(facesNum);
+
+  for (int i = 0; i < qtTest->nodearray.size(); i++)
+  {
+    if (qtTest->nodearray.at(i).level <= qtTest->getMaxLevel()-3 && qtTest->setVisible(qtTest->nodearray.at(i), cam_pos, range))
+    {
+      std::cout << "Begin node draw" << std::endl;
+      for (int x = 0; x < 2; x++)
+      {
+        for (int z = 0; z < 2; z++)
+        {
+          std::cout << "------ -------" << std::endl;
+          std::cout << "height : " << heightmapMat.rows() << " width " << heightmapMat.cols() << std::endl;
+
+          vx = qtTest->nodearray.at(i).vertices[x][z].x;
+          vz = qtTest->nodearray.at(i).vertices[x][z].z;
+          
+          std::cout << vx << " -- " << vz << endl;
+          mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+          mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
+          mVertices[indexVertices].visible = true;
+
+          indexVertices++;
+          vx = qtTest->nodearray.at(i).vertices[x][z+1].x ;
+          vz = qtTest->nodearray.at(i).vertices[x][z+1].z;
+          
+          std::cout << vx << " -- " << vz << endl;
+          mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+          mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
+          mVertices[indexVertices].visible = true;
+
+          indexVertices++;
+          vx = qtTest->nodearray.at(i).vertices[x+1][z].x;
+          vz = qtTest->nodearray.at(i).vertices[x+1][z].z;
+          
+          std::cout << vx << " -- " << vz << endl;
+          mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+          mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
+          mVertices[indexVertices].visible = true;
+
+          indexVertices++;
+          vx = qtTest->nodearray.at(i).vertices[x+1][z+1].x;
+          vz = qtTest->nodearray.at(i).vertices[x+1][z+1].z;
+          
+          std::cout << vx << " -- " << vz << endl;
+          mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+          mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
+          mVertices[indexVertices].visible = true;
+          indexVertices++;
+        }
+      }
+    }
+  }
+  for(unsigned int i = 0; i < raw_width - 1; ++i)
+  {
+      for(unsigned int j = 0; j < raw_height - 1; ++j)
+      {
+          unsigned int offset = (i * raw_width) + j;
+
+          if(mVertices[offset].visible == true)
+          {
+              unsigned int a = i * raw_width + j;
+              unsigned int b = (i+1) * raw_width + j;
+              unsigned int c = (i+1) * raw_width + (j+1);
+              unsigned int d = i * raw_width + (j+1);
+
+              mFaces.push_back(Vector3i(c, b, a));
+              mFaces.push_back(Vector3i(a, d, c));
+          }
+      }
+  }
+  computeNormals();
 }

@@ -19,7 +19,7 @@ class QuadTree
       float minX, maxX, minZ, maxZ;
       
       pos vertices[3][3];
-      unsigned int childrenIndex[4];
+      unsigned int childrenIndex[4] = {};
 
       bool visible;
       bool leaf;
@@ -27,7 +27,8 @@ class QuadTree
 
     unsigned int width;
     unsigned int height;
-    unsigned int nodeIndex;
+    unsigned int nodeIndex = 0;
+    int maxLevel;
 
     void createNode(QTNode parent);
 
@@ -41,5 +42,6 @@ class QuadTree
     ~QuadTree();
     vector<double> getResult(int level);
     bool setVisible(QTNode currentNode, Vector3f position, float range);
+    int getMaxLevel();
 
 };

@@ -92,6 +92,7 @@ void Viewer::drawScene()
 
 void Viewer::updateAndDrawScene()
 {
+ // _terrain.updateTerrain(_cam.getPosition(), _cam.getFar());
   if (_rotate)
     _theta += 0.01 * M_PI;
   drawScene();

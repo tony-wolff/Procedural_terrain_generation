@@ -49,8 +49,6 @@ QuadTree::QuadTree(float minX, float maxX, float minZ, float maxZ, int _width, i
 
     width = _width;
     height = _height;
-
-
     root.level = 0;
 
     createNode(root);
@@ -59,9 +57,8 @@ QuadTree::QuadTree(float minX, float maxX, float minZ, float maxZ, int _width, i
 void QuadTree::createNode(QTNode currentNode)
 {
     // A définir
-    int maxLevel = 8;
+    maxLevel = 8;
     float threshold = width * pow(0.5, maxLevel);
-    
     // Une fois le cap de triangle atteint
     if ((currentNode.height) == threshold) 
     {
@@ -187,7 +184,10 @@ bool QuadTree::setVisible(QTNode currentNode, Vector3f position, float range) {
     if (currentNode.leaf) {
         return false;
     }
-
+    std::cout << currentNode.childrenIndex[0] << std::endl;
+    std::cout << currentNode.childrenIndex[1] << std::endl;
+    std::cout << currentNode.childrenIndex[2] << std::endl;
+    std::cout << currentNode.childrenIndex[3] << std::endl;
     float topLeft = distance(currentNode.minX, currentNode.maxZ, position.x(), position.z());
     float topRight = distance(currentNode.maxX, currentNode.maxZ, position.x(), position.z());
     float bottomLeft = distance(currentNode.minX, currentNode.minZ, position.x(), position.z());
@@ -208,4 +208,9 @@ bool QuadTree::setVisible(QTNode currentNode, Vector3f position, float range) {
     }
 
     return false;
+}
+
+int QuadTree::getMaxLevel()
+{
+    return this->maxLevel;
 }

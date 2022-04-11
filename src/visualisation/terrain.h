@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include <string>
 #include <vector>
+#include "quadtree.h"
 
 class Shader;
 
@@ -36,7 +37,7 @@ public:
     /* TODO */
     float computeDistance(Vector3f camPos);
     void testVisibility(Vector3f planePos, Vector3f camPosition);
-    void updateTerrain();
+    void updateTerrain(Vector3f cam_pos, float range);
 
     /** Quadtree **/
     float distanceToPlane(Vector3f pos);
@@ -68,7 +69,7 @@ protected:
     /** The list of vertices */
     Eigen::MatrixXf heightmapMat;
     std::vector<Vertex> mVertices;
-
+    QuadTree* qtTest;
     /** The list of face indices */
     std::vector<Vector3i> mFaces;
 
