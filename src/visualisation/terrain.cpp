@@ -278,13 +278,10 @@ void Terrain::updateTerrain(Vector3f cam_pos, float range)
       {
         for (int z = 0; z < 2; z++)
         {
-          std::cout << "------ -------" << std::endl;
-          std::cout << "height : " << heightmapMat.rows() << " width " << heightmapMat.cols() << std::endl;
 
           vx = qtTest->nodearray.at(i).vertices[x][z].x;
           vz = qtTest->nodearray.at(i).vertices[x][z].z;
           
-          std::cout << vx << " -- " << vz << endl;
           mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
           mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
           mVertices[indexVertices].visible = true;
@@ -293,7 +290,6 @@ void Terrain::updateTerrain(Vector3f cam_pos, float range)
           vx = qtTest->nodearray.at(i).vertices[x][z+1].x ;
           vz = qtTest->nodearray.at(i).vertices[x][z+1].z;
           
-          std::cout << vx << " -- " << vz << endl;
           mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
           mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
           mVertices[indexVertices].visible = true;
@@ -302,7 +298,6 @@ void Terrain::updateTerrain(Vector3f cam_pos, float range)
           vx = qtTest->nodearray.at(i).vertices[x+1][z].x;
           vz = qtTest->nodearray.at(i).vertices[x+1][z].z;
           
-          std::cout << vx << " -- " << vz << endl;
           mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
           mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
           mVertices[indexVertices].visible = true;
@@ -311,7 +306,6 @@ void Terrain::updateTerrain(Vector3f cam_pos, float range)
           vx = qtTest->nodearray.at(i).vertices[x+1][z+1].x;
           vz = qtTest->nodearray.at(i).vertices[x+1][z+1].z;
           
-          std::cout << vx << " -- " << vz << endl;
           mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
           mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
           mVertices[indexVertices].visible = true;

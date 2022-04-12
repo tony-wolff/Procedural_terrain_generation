@@ -57,7 +57,7 @@ GLFWwindow* initGLFW()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, (GLint)GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "TP Mondes 3D", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Planet Generation Project", NULL, NULL);
     if (!window) {
         glfwTerminate();
         exit(EXIT_FAILURE);

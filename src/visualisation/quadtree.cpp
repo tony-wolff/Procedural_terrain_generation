@@ -184,10 +184,10 @@ bool QuadTree::setVisible(QTNode currentNode, Vector3f position, float range) {
     if (currentNode.leaf) {
         return false;
     }
-    std::cout << currentNode.childrenIndex[0] << std::endl;
-    std::cout << currentNode.childrenIndex[1] << std::endl;
-    std::cout << currentNode.childrenIndex[2] << std::endl;
-    std::cout << currentNode.childrenIndex[3] << std::endl;
+    // std::cout << currentNode.childrenIndex[0] << std::endl;
+    // std::cout << currentNode.childrenIndex[1] << std::endl;
+    // std::cout << currentNode.childrenIndex[2] << std::endl;
+    // std::cout << currentNode.childrenIndex[3] << std::endl;
     float topLeft = distance(currentNode.minX, currentNode.maxZ, position.x(), position.z());
     float topRight = distance(currentNode.maxX, currentNode.maxZ, position.x(), position.z());
     float bottomLeft = distance(currentNode.minX, currentNode.minZ, position.x(), position.z());
