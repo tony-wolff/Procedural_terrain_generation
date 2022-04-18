@@ -26,6 +26,10 @@ void Viewer::init(int w, int h)
   loadShaders();
   if (!_mesh.load(DATA_DIR "/textures/Terrain.png"))
     exit(1);
+
+  /*if (!_mesh.createFrustum(_cam.getFovY(), _cam.getNear(), _cam.getFar(), w, h,
+                           _cam.getPosition(), _cam.getForward(), _cam.getUp(), _cam.getRight(), DATA_DIR "/textures/Terrain.png"))
+    exit(1);*/
   _mesh.init();
 
   reshape(w, h);
@@ -219,8 +223,10 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
     {
       //_cam.moveRight(0.01);
       //_mesh.updateVBO();
-      _mesh.Rmem(_cam.getFovY(), _cam.getNear(), _cam.getFar(), _cam.vpWidth(), _cam.vpHeight(),
-                 _cam.getPosition(), _cam.getForward(), _cam.getUp(), _cam.getRight());
+      /*_mesh.Rmem(_cam.getFovY(), _cam.getNear(), _cam.getFar(), _cam.vpWidth(), _cam.vpHeight(),
+                 _cam.getPosition(), _cam.getForward(), _cam.getUp(), _cam.getRight(), DATA_DIR "/textures/Terrain.png");*/
+      _mesh.createFrustum(_cam.getFovY(), _cam.getNear(), _cam.getFar(), _cam.vpWidth(), _cam.vpHeight(),
+                          _cam.getPosition(), _cam.getForward(), _cam.getUp(), _cam.getRight(), DATA_DIR "/textures/Terrain.png");
     }
   }
 }

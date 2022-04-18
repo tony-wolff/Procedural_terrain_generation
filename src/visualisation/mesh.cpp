@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include "camera.h"
 
 using namespace Eigen;
 
@@ -20,7 +21,8 @@ bool Mesh::load(const std::string &filename)
   else if(ext=="obj" || ext=="OBJ")
     return loadOBJ(filename);*/
 
-  std::cerr << "Mesh: extension \'" << ext << "\' not supported." << std::endl;
+  std::cerr
+      << "Mesh: extension \'" << ext << "\' not supported." << std::endl;
   return false;
 }
 
@@ -70,107 +72,18 @@ void Mesh::updateVBO()
   glBindBuffer(GL_ARRAY_BUFFER, mVertexBufferId);
   // copy the data from host's RAM to GPU's video memory:
   glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * mVertices.size(), mVertices[0].position.data(), GL_STATIC_DRAW);
+  // glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * initVertices.size(), initVertices[0].position.data(), GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBufferId);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Vector3i) * mFaces.size(), mFaces[0].data(), GL_STATIC_DRAW);
 }
 
-/*void Mesh::createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHeight,
-                         Vector3f mPosition, Vector3f mForward, Vector3f mUp, Vector3f mRight)
+#include <ImageMagick-7/Magick++.h>
+
+void Mesh::createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHeight,
+                         Vector3f mPosition, Vector3f mForward, Vector3f mUp, Vector3f mRight, const std::string &filename)
 {
-  // calculate generalized relative width and aspect ratio
-  float normHalfWidth = tan(m_fovY);
 
-  float aspectRatio = mVpWidth / mVpHeight;
-  // float aspectRatio = 1;
-
-  // calculate width and height for near and far plane
-  float nearHW = normHalfWidth * m_near;
-  float nearHH = nearHW / aspectRatio;
-  float farHW = normHalfWidth * m_far * 0.5f;
-  float farHH = farHW / aspectRatio;
-
-  // calculate near and far plane centers
-  Vector3f nCenter = mPosition + mForward * m_near;
-  Vector3f fCenter = mPosition + mForward * m_far * 0.5f;
-
-  // construct corners of the near plane in the culled objects world space
-  Vector3f na = Vector3f(nCenter + mUp * nearHH - mRight * nearHW);
-  Vector3f nb = Vector3f(nCenter + mUp * nearHH + mRight * nearHW);
-  Vector3f nc = Vector3f(nCenter - mUp * nearHH - mRight * nearHW);
-  Vector3f nd = Vector3f(nCenter - mUp * nearHH + mRight * nearHW);
-  // construct corners of the far plane
-  Vector3f fa = Vector3f(fCenter + mUp * farHH - mRight * farHW);
-  Vector3f fb = Vector3f(fCenter + mUp * farHH + mRight * farHW);
-  Vector3f fc = Vector3f(fCenter - mUp * farHH - mRight * farHW);
-  Vector3f fd = Vector3f(fCenter - mUp * farHH + mRight * farHW);
-
-  // construct planes
-  m_Planes.clear();
-  // winding in an outside perspective so the cross product creates normals pointing inward
-  m_Planes.push_back(Plane(na, nb, nc)); // Near
-  m_Planes.push_back(Plane(fb, fa, fd)); // Far
-  m_Planes.push_back(Plane(fa, na, fc)); // Left
-  m_Planes.push_back(Plane(nb, fb, nd)); // Right
-  m_Planes.push_back(Plane(fa, fb, na)); // Top
-  m_Planes.push_back(Plane(nc, nd, fc)); // Bottom
-}*/
-
-/*void Mesh::createFrustum(Matrix4f ProjectViewMatrix)
-{
-  // Transposes the project view matrix to extract the planes information
-  ProjectViewMatrix = ProjectViewMatrix.transpose();
-
-  // Left plane
-  m_Planes[ePlanes::LEFT] = ProjectViewMatrix[3] + ProjectViewMatrix[0];
-  // Right plane
-  m_Planes[ePlanes::RIGHT] = ProjectViewMatrix[3] - ProjectViewMatrix[0];
-
-  // Top plane
-  m_Planes[ePlanes::TOP] = ProjectViewMatrix[3] - ProjectViewMatrix[1];
-  // Bottom plae
-  m_Planes[ePlanes::BOTTOM] = ProjectViewMatrix[3] + ProjectViewMatrix[1];
-
-  // Near plane
-  m_Planes[ePlanes::NEAR] = ProjectViewMatrix[3] + ProjectViewMatrix[2];
-  // Far plane
-  m_Planes[ePlanes::FAR] = ProjectViewMatrix[3] - ProjectViewMatrix[2];
-}
-*/
-/*bool Mesh::inFrustum(Vector3f p)
-{
-  // Loop trought each plane to check with the current box
-  for (auto plane : m_Planes)
-  {
-    if ((plane.n).dot(p - plane.d) < 0)
-    {
-      return false;
-    }
-  }
-  return true;
-}*/
-
-/*float Mesh::distance(const Vector4f &plane, const Vector3f &point) const
-{
-  // Formula to calculate the distance between the point and the plane
-  return (plane.x * point.x) + (plane.y * point.y) + (plane.z * point.z) + plane.w;
-}
-
-bool Mesh::inFrustum(const Mesh::AAB &box)
-{
-  for (auto plane : m_Planes)
-  {
-    if (distance(plane, box.getPositiveVertex(Vector3f(plane.x, plane.y, plane.z).normalized())) < 0.0f)
-    {
-      return false;
-    }
-  }
-  return true;
-}*/
-
-void Mesh::Rmem(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHeight,
-                Vector3f mPosition, Vector3f mForward, Vector3f mUp, Vector3f mRight)
-{
   // calculate generalized relative width and aspect ratio
   float normHalfWidth = tan(m_fovY);
 
@@ -215,66 +128,73 @@ void Mesh::Rmem(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHe
   m_Planes.push_back(nt);  // Top
   m_Planes.push_back(nbo); // Bottom
 
-  long unsigned int f1 = initVertices.size();
-  if (!mIsInitialized)
+  mVertices.clear();
+  mFaces.clear();
+
+  // si c'est dans le frustum on ajoute les sommets sinon on rend les sommets à false;
+
+  unsigned int vertexNum = 0;
+  unsigned int facesNum = 0;
+
+  float heightmap_x = 16.0f;
+  float heightmap_z = 16.0f;
+  float heightmap_y = 1.25f;
+  float heightmap_tex_x = 1.0f / 16.0f;
+  float heightmap_tex_z = 1.0f / 16.0f;
+
+  MapLoader *m_loader = new MapLoader();
+
+  MatrixXf hmapMat;
+  m_loader->ReadMap(filename, &hmapMat);
+
+  // We build the QuadTree & get the first lod
+  QuadTree *qt = new QuadTree(hmapMat);
+  vector<double> qtMat = qt->getResult(0);
+
+  // Getting the width and height
+  raw_height = (hmapMat.rows());
+  raw_width = (hmapMat.cols());
+  vertexNum = raw_width * raw_height;
+  facesNum = ((raw_width) * (raw_height)) * 2;
+  mVertices.resize(vertexNum);
+  mFaces.reserve(facesNum);
+
+  std::cout << "#######################" << std::endl;
+  std::cout << "Map Height : " << raw_height << std::endl;
+  std::cout << "Map Width : " << raw_width << std::endl;
+  std::cout << "vertexNum : " << vertexNum << std::endl;
+  std::cout << "facesNum : " << facesNum << std::endl;
+
+  // Acces image pixel by pixel
+  for (unsigned int x = 0; x < raw_width; ++x)
   {
-    for (long unsigned int i = 0; i < f1; i++)
+    for (unsigned int z = 0; z < raw_height; ++z)
     {
-      mVertices.push_back(initVertices[i]);
-    }
-  }
-  else
-  {
-    mVertices.clear();
-    mFaces.clear();
+      unsigned int offset = x * raw_width + z;
 
-    /*for (long unsigned int i = 0; i < f1; i++)
-    {
-
-      if (i < f1 / 2)
-        mVertices.push_back(initVertices[i]);
-      else
-        initVertices[i].visible = false;
-    }*/
-
-    // si c'est dans le frustum on ajoute les sommets sinon on rend les sommets à false;
-    /****************************************************************/
-
-    /*for (auto vertice : initVertices)
-     {
-       if ((nn.n).dot(vertice.position - na) < 0 ||
-           (nf.n).dot(vertice.position - fa) < 0 ||
-           (nl.n).dot(vertice.position - fa) < 0 ||
-           (nr.n).dot(vertice.position - nb) < 0 ||
-           (nt.n).dot(vertice.position - fa) < 0 ||
-           (nbo.n).dot(vertice.position - nc) < 0)
-       {
-         vertice.visible = false;
-       }
-       else
-       {
-         vertice.visible = true;
-         mVertices.push_back(vertice);
-       }
-     }*/
-
-    int i = 0;
-    for (auto plane : m_Planes)
-    {
-      if ((plane.n).dot(initVertices[i].position - plane.d) < 0)
-      {
-        initVertices[i].visible = false;
-      }
-      else
-      {
-        initVertices[i].visible = true;
-        mVertices.push_back(initVertices[i]);
-      }
-      i++;
+      mVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
+      mVertices[offset].texcoord = Vector2f(x * heightmap_tex_x, z * heightmap_tex_z);
     }
   }
 
-  /****************************************************************/
+  for (auto vertice : mVertices)
+  {
+    if ((nn.n).dot(vertice.position - na) < 0 ||
+        (nf.n).dot(vertice.position - fa) < 0 ||
+        (nl.n).dot(vertice.position - fa) < 0 ||
+        (nr.n).dot(vertice.position - nb) < 0 ||
+        (nt.n).dot(vertice.position - fa) < 0 ||
+        (nbo.n).dot(vertice.position - nc) < 0)
+    {
+      vertice.visible = false;
+    }
+    else
+    {
+      vertice.visible = true;
+      // mVertices.push_back(vertice);
+    }
+  }
+
   for (unsigned int x = 0; x < raw_width - 1; ++x)
   {
     for (unsigned int z = 0; z < raw_height - 1; ++z)
@@ -284,19 +204,22 @@ void Mesh::Rmem(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHe
       unsigned int c = (x + 1) * raw_width + (z + 1);
       unsigned int d = x * raw_width + (z + 1);
 
-      if (!initVertices[a].visible)
+      /*if (!mVertices[a].visible)
         break;
-      if (!initVertices[b].visible)
+      if (!mVertices[b].visible)
         break;
-      if (!initVertices[c].visible)
+      if (!mVertices[c].visible)
         break;
-      if (!initVertices[d].visible)
-        break;
-      mFaces.push_back(Vector3i(c, b, a));
-      mFaces.push_back(Vector3i(a, d, c));
+      if (!mVertices[d].visible)
+        break;*/
+
+      if (mVertices[a].visible && mVertices[b].visible && mVertices[c].visible && mVertices[d].visible)
+      {
+        mFaces.push_back(Vector3i(c, b, a));
+        mFaces.push_back(Vector3i(a, d, c));
+      }
     }
   }
-  //}
   updateVBO();
 }
 
@@ -395,11 +318,11 @@ bool Mesh::loadPNG(const std::string &filename)
   unsigned int vertexNum = 0;
   unsigned int facesNum = 0;
 
-  /*float heightmap_x = 16.0f;
+  float heightmap_x = 16.0f;
   float heightmap_z = 16.0f;
   float heightmap_y = 1.25f;
   float heightmap_tex_x = 1.0f / 16.0f;
-  float heightmap_tex_z = 1.0f / 16.0f;*/
+  float heightmap_tex_z = 1.0f / 16.0f;
 
   /* float heightmap_x = 160.0f;
   float heightmap_z = 160.0f;
@@ -407,11 +330,11 @@ bool Mesh::loadPNG(const std::string &filename)
   float heightmap_tex_x = 1.0f / 1.60f;
   float heightmap_tex_z = 1.0f / 1.60f;*/
 
-  float heightmap_x = 1;
+  /*float heightmap_x = 1;
   float heightmap_z = 1;
   float heightmap_y = 1;
   float heightmap_tex_x = 1;
-  float heightmap_tex_z = 1;
+  float heightmap_tex_z = 1;*/
 
   MapLoader *m_loader = new MapLoader();
 
@@ -427,8 +350,9 @@ bool Mesh::loadPNG(const std::string &filename)
   raw_width = (hmapMat.cols());
   vertexNum = raw_width * raw_height;
   facesNum = ((raw_width) * (raw_height)) * 2;
-  // mVertices.resize(vertexNum);
-  initVertices.resize(vertexNum);
+  mVertices.resize(vertexNum);
+  //  initVertices.clear();
+  // initVertices.resize(vertexNum);
   mFaces.reserve(facesNum);
 
   std::cout << "Map Height : " << raw_height << std::endl;
@@ -443,9 +367,13 @@ bool Mesh::loadPNG(const std::string &filename)
     {
       unsigned int offset = x * raw_width + z;
 
-      initVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
+      /*initVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
       initVertices[offset].texcoord = Vector2f(x * heightmap_tex_x, z * heightmap_tex_z);
-      initVertices[offset].visible = true;
+      initVertices[offset].visible = true;*/
+
+      mVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
+      mVertices[offset].texcoord = Vector2f(x * heightmap_tex_x, z * heightmap_tex_z);
+      mVertices[offset].visible = true;
     }
   }
 
@@ -462,7 +390,6 @@ bool Mesh::loadPNG(const std::string &filename)
       mFaces.push_back(Vector3i(a, d, c));
     }
   }
-
   computeNormals();
 
   return true;

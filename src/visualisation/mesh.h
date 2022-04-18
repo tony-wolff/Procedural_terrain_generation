@@ -32,6 +32,13 @@ class Mesh
     Vector3f d;
   };
 
+  enum class VolumeTri
+  {
+    OUTSIDE,
+    INTERSECT,
+    CONTAINS
+  };
+
 public:
   Mesh() {}
 
@@ -49,10 +56,10 @@ public:
   // Copy vertex attributes from the CPU to GPU memory (needs to be called after editing any vertex attributes: positions, normals, texcoords, masks, etc.)
   void updateVBO();
 
-  void Rmem(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHeight,
-            Vector3f mPosition, Vector3f mForward, Vector3f mUp, Vector3f mRight);
-  /*void createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHeight,
-                     Vector3f mPosition, Vector3f mForward, Vector3f mUp, Vector3f mRight);*/
+  bool Rmem(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHeight,
+            Vector3f mPosition, Vector3f mForward, Vector3f mUp, Vector3f mRight, const std::string &filename);
+  void createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, int mVpHeight,
+                     Vector3f mPosition, Vector3f mForward, Vector3f mUp, Vector3f mRight, const std::string &filename);
 
   /** Send the mesh to OpenGL for drawing using shader \a shd */
   virtual void draw(const Shader &shd);
