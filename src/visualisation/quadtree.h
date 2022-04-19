@@ -1,30 +1,15 @@
 #include <Eigen/Dense>
 #include <vector>
 #include "opengl.h"
+#include "TerrainGeneration.h"
 
 using namespace std;
 using namespace Eigen;
 
-struct pos {int x, z; };
 
-class QuadTree
+class QuadTree : public TerrainGeneration
 {
   private:
-    typedef struct
-    {
-      ssize_t x, z;
-      double y;
-      int level;
-      int width, height;
-      float minX, maxX, minZ, maxZ;
-      
-      pos vertices[3][3];
-      unsigned int childrenIndex[4] = {};
-
-      bool visible;
-      bool leaf;
-    } QTNode;
-
     unsigned int width;
     unsigned int height;
     unsigned int nodeIndex = 0;
@@ -35,13 +20,39 @@ class QuadTree
   public:
     vector<QTNode> nodearray;
 
-    QuadTree(float minX, float maxX, float minZ, float maxZ, int width, int height);
+    void compile(float minX, float maxX, float minZ, float maxZ, int _width, int _height) {
+      QTNode root;
+      root.minX = minX;
+      root.maxX = maxX;
+      root.minZ = minZ;
+      root.maxZ = maxZ;
+      root.width = _width;
+      root.height = _height;
+
+      width = _width;
+      height = _height;
+      root.level = 0;
+
+      createNode(root);
+    }
+
+    vector<QTNode> getResult(int level) {
+      vector<QTNode> vect;
+
+      for (unsigned long i = 0; i < nodearray.size(); i++)
+      {
+          if (nodearray[i].level <= level)
+          {
+              QTNode node = nodearray.at(i);
+              vect.push_back(node);
+          }
+      }
+
+      return vect;
+    }
+    
     QuadTree();
-    QuadTree(MatrixXf heightmap);
-    QuadTree(const QuadTree&);
     ~QuadTree();
-    vector<double> getResult(int level);
     bool setVisible(QTNode currentNode, Vector3f position, float range);
     int getMaxLevel();
-
 };
