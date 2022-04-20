@@ -8,7 +8,7 @@
 /** Permet de manipuler des shaders en GLSL
     Exemple d'utilisation:
     \code
-    // shader creation:
+    // Shader creation:
     Shader* myShader = new Shader();
     // loading from files (compilation + linking):
     myShader->loadFromFiles("myShaderFile.vtx", "myShaderFile.frg");
@@ -28,16 +28,16 @@ public:
       : mIsValid(false)
     {}
 
-    /** Compiles and links the shader from 2 source files
-        \param fileV vertex shader ("" if no vertex shader)
-        \param fileF fragment shader ("" if no fragment shader)
+    /** Compiles and links the Shader from 2 source files
+        \param fileV vertex Shader ("" if no vertex Shader)
+        \param fileF fragment Shader ("" if no fragment Shader)
         \return true if no error occurs
     */
     bool loadFromFiles(const std::string& fileV, const std::string& fileF);
 
     bool loadSources(const std::string& vsrc, const std::string& fsrc);
 
-    /** Enable / Disable the shader
+    /** Enable / Disable the Shader
     */
     void activate() const;
     void deactivate() const;

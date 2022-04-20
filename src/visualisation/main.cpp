@@ -1,9 +1,9 @@
 #include "opengl.h"
-#include "viewer.h"
+#include "ViewerOpenGL.h"
 #include <iostream>
-#include "heightMapGen.h"
+#include "HeightMapGen.h"
 
-Viewer* v;
+ViewerAbstract* v;
 
 int WIDTH = 600;
 int HEIGHT = 600;
@@ -31,7 +31,7 @@ static void key_callback(GLFWwindow* window, int key, int /*scancode*/, int acti
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int /*mods*/)
 {
-    v->mousePressed(window, button, action);
+    v->mousePressed(button, action);
 }
 
 void cursorPos_callback(GLFWwindow* /*window*/, double x, double y)
@@ -97,7 +97,7 @@ int main (int /*argc*/, char **/*argv*/)
     GLFWwindow* window = initGLFW();
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
-    v = new Viewer();
+    v = new ViewerOpenGL();
     v->init(w,h);
 
     double t0 = glfwGetTime();

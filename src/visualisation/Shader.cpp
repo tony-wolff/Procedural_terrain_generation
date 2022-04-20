@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "Shader.h"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -39,7 +39,7 @@ bool Shader::loadSources(const std::string& vsrc, const std::string& fsrc)
 
     mProgramID = glCreateProgram();
 
-    // vertex shader
+    // vertex Shader
     {
         GLuint shaderID = glCreateShader(GL_VERTEX_SHADER);
 
@@ -57,7 +57,7 @@ bool Shader::loadSources(const std::string& vsrc, const std::string& fsrc)
             glAttachShader(mProgramID, shaderID);
     }
 
-    // fragment shader
+    // fragment Shader
     {
         GLuint shaderID = glCreateShader(GL_FRAGMENT_SHADER);
 

@@ -1,4 +1,4 @@
-#include "quadtree.h"
+#include "QuadTree.h"
 #include "math.h"
 #include <iostream>
 #include <fstream>
@@ -8,50 +8,8 @@ QuadTree::QuadTree()
 {
 }
 
-QuadTree::QuadTree(const QuadTree &other)
-{
-
-}
-
 QuadTree::~QuadTree()
 {
-}
-
-QuadTree::QuadTree(MatrixXf heightmap)
-{
-    width = heightmap.cols();
-    height = heightmap.rows();
-
-    for (ssize_t i = 0; i < height; i++)
-    {
-        for (ssize_t j = 0; j < width; j++)
-        {
-            QTNode test;
-            test.x = i;
-            test.z = j;
-            test.y = heightmap(i, j);
-            test.level = 0;
-            nodearray.push_back(test);
-        }
-    }
-}
-
-QuadTree::QuadTree(float minX, float maxX, float minZ, float maxZ, int _width, int _height)
-{
-    // Notre premier node englobe tout le terrain
-    QTNode root;
-    root.minX = minX;
-    root.maxX = maxX;
-    root.minZ = minZ;
-    root.maxZ = maxZ;
-    root.width = _width;
-    root.height = _height;
-
-    width = _width;
-    height = _height;
-    root.level = 0;
-
-    createNode(root);
 }
 
 void QuadTree::createNode(QTNode currentNode)
@@ -75,8 +33,8 @@ void QuadTree::createNode(QTNode currentNode)
         {
             for (int z = 0; z < 3; z ++)
             {
-                int posX = currentNode.minX + (divs * x);
-                int posZ = currentNode.minZ + (divs * z);
+                unsigned int posX = currentNode.minX + (divs * x);
+                unsigned int posZ = currentNode.minZ + (divs * z);
                 if (posX > 0)
                     posX--;
                 if (posZ > 0)
@@ -157,23 +115,6 @@ void QuadTree::createNode(QTNode currentNode)
         createNode(childNode);
     }
 }
-
-vector<double> QuadTree::getResult(int level)
-{
-    vector<double> vect;
-
-    for (ssize_t i = 0; i < nodearray.size(); i++)
-    {
-        if (nodearray[i].level == level)
-        {
-            QTNode node = nodearray.at(i);
-            vect.push_back(node.y);
-        }
-    }
-
-    return vect;
-}
-
 
 float distance(int x, int z, int x1, int z1) {
     return sqrt(pow((x - x1), 2) + pow((z - z1), 2));

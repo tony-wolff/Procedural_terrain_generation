@@ -2,12 +2,12 @@
 #include <Eigen/Dense>
 #include <string>
 #include <vector>
-#include "quadtree.h"
+#include "QuadTree.h"
 
 class Shader;
 
 /** \class Terrain
- * A class to represent a 3D heightmap based terrain
+ * A class to represent a 3D heightmap based Terrain
  */
 class Terrain
 {
@@ -31,7 +31,7 @@ public:
     * calling draw()) */
     void initVBA();
 
-    /** Send the mesh to OpenGL for drawing using shader \a shd */
+    /** Send the Mesh to OpenGL for drawing using Shader \a shd */
     virtual void draw(const Shader &shd);
 
     /* TODO */
@@ -39,7 +39,7 @@ public:
     void testVisibility(Vector3f planePos, Vector3f camPosition);
     void updateTerrain(Vector3f cam_pos, float range);
 
-    /** Quadtree **/
+    /** QuadTree **/
     float distanceToPlane(Vector3f pos);
     void drawQTTerrain();
     unsigned int getRaw_width();
@@ -49,7 +49,7 @@ protected:
     /** Loads heightmap in png format */
     bool loadPNG(const std::string &filename);
 
-    /** Represents a vertex of the mesh */
+    /** Represents a vertex of the Mesh */
     struct Vertex
     {
         Vertex(const Vector3f &pos = Vector3f::Zero(),

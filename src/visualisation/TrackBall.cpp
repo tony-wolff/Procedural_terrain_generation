@@ -1,6 +1,6 @@
 
-#include "trackball.h"
-#include "camera.h"
+#include "TrackBall.h"
+#include "Camera.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -8,7 +8,7 @@
 
 using namespace Eigen;
 
-void Trackball::track(const Vector2i& point2D)
+void TrackBall::track(const Vector2i& point2D)
 {
   if (mpCamera==0)
     return;
@@ -30,7 +30,7 @@ void Trackball::track(const Vector2i& point2D)
   mLastPointOk = newPointOk;
 }
 
-bool Trackball::mapToSphere(const Vector2i& p2, Vector3f& v3)
+bool TrackBall::mapToSphere(const Vector2i& p2, Vector3f& v3)
 {
   if ((p2.x() >= 0) && (p2.x() <= int(mpCamera->vpWidth())) &&
       (p2.y() >= 0) && (p2.y() <= int(mpCamera->vpHeight())) )

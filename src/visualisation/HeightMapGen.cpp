@@ -1,9 +1,9 @@
-#include "heightMapGen.h"
+#include "HeightMapGen.h"
 #include <iostream>
 #include <random>
 
 
-void heightMapGen::GeneratePlanarHeightMap(int width, int height)
+void HeightMapGen::GeneratePlanarHeightMap(int width, int height)
 {
     builder_plane.SetSourceModule(pModule);
     builder_plane.SetDestNoiseMap(heightMap);
@@ -14,7 +14,7 @@ void heightMapGen::GeneratePlanarHeightMap(int width, int height)
     RenderProcessing();
 }
 
-void heightMapGen::GenerateSphericalHeightMap(int width, int height)
+void HeightMapGen::GenerateSphericalHeightMap(int width, int height)
 {
     builder_sphere.SetSourceModule(pModule);
     builder_sphere.SetDestNoiseMap(heightMap);
@@ -25,7 +25,7 @@ void heightMapGen::GenerateSphericalHeightMap(int width, int height)
     RenderProcessing();
 }
 
-void heightMapGen::RenderProcessing()
+void HeightMapGen::RenderProcessing()
 {
     renderer.SetSourceNoiseMap(heightMap);
     renderer.SetDestImage(image);
@@ -35,14 +35,14 @@ void heightMapGen::RenderProcessing()
     renderer.Render();
 }
 
-void heightMapGen::Save(std::string output_file)
+void HeightMapGen::Save(std::string output_file)
 {
     writer.SetSourceImage(image);
     writer.SetDestFilename(DATA_DIR "/textures/" + output_file);
     writer.WriteDestFile();
 }
 
-void heightMapGen::SetBoundingSquare(double lowerX, double upperX, double lowerZ, double upperZ)
+void HeightMapGen::SetBoundingSquare(double lowerX, double upperX, double lowerZ, double upperZ)
 {
     bs.lowerX = lowerX;
     bs.upperX = upperX;
@@ -56,28 +56,28 @@ void heightMapGen::SetBoundingSquare(double lowerX, double upperX, double lowerZ
  * Each octave has double the frequency of the last one, and a smaller amplitude.
  * Also increase calculation time
  * */
-void heightMapGen::SetOctave(int octave)
+void HeightMapGen::SetOctave(int octave)
 {
     pModule.SetOctaveCount(octave);
 }
 
 /**
  * Sets the frequency for the first octave
- * A higher frequency means more terrain features but smaller features.
+ * A higher frequency means more Terrain features but smaller features.
  * Values between 1 and 16
  * */
-void heightMapGen::SetFrequency(double f)
+void HeightMapGen::SetFrequency(double f)
 {
     pModule.SetFrequency(f);
 }
 
 /**
  * determines how quickly the amplitudes fall for each successive octave
- * increasing the value = rougher terrain
- * decreasing = smoother terrain
+ * increasing the value = rougher Terrain
+ * decreasing = smoother Terrain
  * Values between 0 and 1
  * */
-void heightMapGen::SetPersistence(double p)
+void HeightMapGen::SetPersistence(double p)
 {
     pModule.SetPersistence(p);
 }
@@ -100,7 +100,7 @@ double randomBetween(double min, double max)
 
 
 
-void heightMapGen::GenerateRandomHeightMap(int width, int height)
+void HeightMapGen::GenerateRandomHeightMap(int width, int height)
 {
     bs.lowerX = randomBetween(MIN_X, MAX_X);
     bs.upperX = randomBetween((int)bs.lowerX+1, MAX_X);

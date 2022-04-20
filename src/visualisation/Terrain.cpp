@@ -1,7 +1,7 @@
 
-#include "terrain.h"
-#include "shader.h"
-#include "maploader.h"
+#include "Terrain.h"
+#include "Shader.h"
+#include "MapLoader.h"
 #include <Eigen/Geometry>
 #include <iostream>
 #include <fstream>
@@ -24,12 +24,7 @@ int Terrain::loadHeightmap(const std::string& filename)
     float heightmap_y = 1;
     float heightmap_tex_x = 1;
     float heightmap_tex_z = 1;
-
-    // We build the QuadTree & get the first lod
-    QuadTree* qt = new QuadTree(heightmapMat);
     
-    vector<double> qtMat = qt->getResult(0);
-
     // Getting the width and height 
     raw_height = (heightmapMat.rows());
     raw_width = (heightmapMat.cols());
@@ -42,20 +37,21 @@ int Terrain::loadHeightmap(const std::string& filename)
     std::cout << "Map Width : " << raw_width << std::endl;
     std::cout << "vertexNum : " << vertexNum << std::endl;
     std::cout << "facesNum : " << facesNum << std::endl;
+  
+    TerrainGeneration* qtCdlod = new QuadTree();
+    qtCdlod->compile(0, 512, 0, 512, 512, 512);
 
-    qtTest = new QuadTree(0, 512, 0, 512, 512, 512);
+    vector<TerrainGeneration::QTNode> nodearray = qtCdlod->getResult(6);
 
     std::cout << "------- QuadTree build -------" << std::endl;
-    std::cout << qtTest->nodearray.size() << " node created" << std::endl;
+    std::cout << nodearray.size() << " node created" << std::endl;
 
     int vx, vz;
     int indexVertices = 0;
-    mVertices.resize(qtTest->nodearray.size() * 8);
+    mVertices.resize(nodearray.size() * 8);
 
-    for (int i = 0; i < qtTest->nodearray.size(); i++)
+    for (int i = 0; i < nodearray.size(); i++)
     {
-      if (qtTest->nodearray.at(i).level <= qtTest->getMaxLevel()-2)
-      {
         //std::cout << "Begin node draw" << std::endl;
         for (int x = 0; x < 2; x++)
         {
@@ -64,8 +60,8 @@ int Terrain::loadHeightmap(const std::string& filename)
             /*std::cout << "------ -------" << std::endl;
             std::cout << "height : " << heightmapMat.rows() << " width " << heightmapMat.cols() << std::endl;*/
 
-            vx = qtTest->nodearray.at(i).vertices[x][z].x;
-            vz = qtTest->nodearray.at(i).vertices[x][z].z;
+            vx = nodearray.at(i).vertices[x][z].x;
+            vz = nodearray.at(i).vertices[x][z].z;
             
             //std::cout << vx << " -- " << vz << endl;
             mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
@@ -73,8 +69,8 @@ int Terrain::loadHeightmap(const std::string& filename)
             mVertices[indexVertices].visible = true;
 
             indexVertices++;
-            vx = qtTest->nodearray.at(i).vertices[x][z+1].x ;
-            vz = qtTest->nodearray.at(i).vertices[x][z+1].z;
+            vx = nodearray.at(i).vertices[x][z+1].x ;
+            vz = nodearray.at(i).vertices[x][z+1].z;
             
             //std::cout << vx << " -- " << vz << endl;
             mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
@@ -82,8 +78,8 @@ int Terrain::loadHeightmap(const std::string& filename)
             mVertices[indexVertices].visible = true;
 
             indexVertices++;
-            vx = qtTest->nodearray.at(i).vertices[x+1][z].x;
-            vz = qtTest->nodearray.at(i).vertices[x+1][z].z;
+            vx = nodearray.at(i).vertices[x+1][z].x;
+            vz = nodearray.at(i).vertices[x+1][z].z;
             
             //std::cout << vx << " -- " << vz << endl;
             mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
@@ -91,8 +87,8 @@ int Terrain::loadHeightmap(const std::string& filename)
             mVertices[indexVertices].visible = true;
 
             indexVertices++;
-            vx = qtTest->nodearray.at(i).vertices[x+1][z+1].x;
-            vz = qtTest->nodearray.at(i).vertices[x+1][z+1].z;
+            vx = nodearray.at(i).vertices[x+1][z+1].x;
+            vz = nodearray.at(i).vertices[x+1][z+1].z;
             
             //std::cout << vx << " -- " << vz << endl;
             mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
@@ -101,7 +97,6 @@ int Terrain::loadHeightmap(const std::string& filename)
             indexVertices++;
           }
         }
-      }
     }
 
     for(unsigned int i = 0; i < raw_width - 1; ++i)
@@ -185,14 +180,14 @@ Terrain::~Terrain()
 
 void Terrain::draw(const Shader &shd)
 {
-  // Activate the VBO of the current mesh:
+  // Activate the VBO of the current Mesh:
   glBindVertexArray(mVertexArrayId);
   glBindBuffer(GL_ARRAY_BUFFER, mVertexBufferId);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBufferId);
   
   // Specify vertex data
 
-  // 1 - get id of the attribute "vtx_position" as declared as "in vec3 vtx_position" in the vertex shader
+  // 1 - get id of the attribute "vtx_position" as declared as "in vec3 vtx_position" in the vertex Shader
   int vertex_loc = shd.getAttribLocation("vtx_position");
   if(vertex_loc>=0)
   {
@@ -232,7 +227,7 @@ void Terrain::draw(const Shader &shd)
   // send the geometry
   glDrawElements(GL_TRIANGLES, 3*mFaces.size(), GL_UNSIGNED_INT, 0);
 
-  // at this point the mesh has been drawn and rasterized into the framebuffer!
+  // at this point the Mesh has been drawn and rasterized into the framebuffer!
   if(vertex_loc>=0) glDisableVertexAttribArray(vertex_loc);
   if(normal_loc>=0) glDisableVertexAttribArray(normal_loc);
   if(color_loc>=0)  glDisableVertexAttribArray(color_loc);
