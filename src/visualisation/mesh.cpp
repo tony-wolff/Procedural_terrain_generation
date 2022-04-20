@@ -174,10 +174,24 @@ void Mesh::createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, 
 
       mVertices[offset] = Vertex(Vector3f(x * heightmap_x, (qtMat.at(offset) * 255) * heightmap_y, z * heightmap_z));
       mVertices[offset].texcoord = Vector2f(x * heightmap_tex_x, z * heightmap_tex_z);
+
+      if ((nn.n).dot(mVertices[offset].position - na) < 0 ||
+          (nf.n).dot(mVertices[offset].position - fa) < 0 ||
+          (nl.n).dot(mVertices[offset].position - fa) < 0 ||
+          (nr.n).dot(mVertices[offset].position - nb) < 0 ||
+          (nt.n).dot(mVertices[offset].position - fa) < 0 ||
+          (nbo.n).dot(mVertices[offset].position - nc) < 0)
+      {
+        mVertices[offset].visible = false;
+      }
+      else
+      {
+        mVertices[offset].visible = true;
+      }
     }
   }
 
-  for (auto vertice : mVertices)
+  /*for (auto vertice : mVertices)
   {
     if ((nn.n).dot(vertice.position - na) < 0 ||
         (nf.n).dot(vertice.position - fa) < 0 ||
@@ -191,9 +205,23 @@ void Mesh::createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, 
     else
     {
       vertice.visible = true;
-      // mVertices.push_back(vertice);
     }
-  }
+  }*/
+  /* Camera cam;
+   int i = 0;
+   for (auto plane : cam.m_Planes)
+   {
+
+     if ((plane.n).dot(mVertices[i].position - plane.d) < 0)
+     {
+       mVertices[i].visible = false;
+     }
+     else
+     {
+       mVertices[i].visible = true;
+     }
+     i++;
+   }*/
 
   for (unsigned int x = 0; x < raw_width - 1; ++x)
   {
@@ -204,22 +232,18 @@ void Mesh::createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, 
       unsigned int c = (x + 1) * raw_width + (z + 1);
       unsigned int d = x * raw_width + (z + 1);
 
-      /*if (!mVertices[a].visible)
-        break;
-      if (!mVertices[b].visible)
-        break;
-      if (!mVertices[c].visible)
-        break;
-      if (!mVertices[d].visible)
-        break;*/
-
       if (mVertices[a].visible && mVertices[b].visible && mVertices[c].visible && mVertices[d].visible)
       {
         mFaces.push_back(Vector3i(c, b, a));
         mFaces.push_back(Vector3i(a, d, c));
       }
+      mVertices[a].visible = false;
+      mVertices[b].visible = false;
+      mVertices[c].visible = false;
+      mVertices[d].visible = false;
     }
   }
+
   updateVBO();
 }
 

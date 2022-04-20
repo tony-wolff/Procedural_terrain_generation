@@ -32,13 +32,6 @@ class Mesh
     Vector3f d;
   };
 
-  enum class VolumeTri
-  {
-    OUTSIDE,
-    INTERSECT,
-    CONTAINS
-  };
-
 public:
   Mesh() {}
 
@@ -71,41 +64,6 @@ public:
   void drawQTTerrain();
   unsigned int getRaw_width();
   unsigned int getRaw_height();
-
-  // Axis Aligned Box structy
-  struct AAB
-  {
-    // Points of the AAB
-    Vector3f maxPoint;
-    Vector3f minPoint;
-
-    const Vector3f getPositiveVertex(Vector3f normal) const
-    {
-      Vector3f positive = minPoint;
-      if (normal.x() >= 0)
-        positive.x() = maxPoint.x();
-      if (normal.y() >= 0)
-        positive.y() = maxPoint.y();
-      if (normal.z() >= 0)
-        positive.z() = maxPoint.z();
-
-      return positive;
-    }
-
-    const Vector3f getNegativeVertex(Vector3f normal) const
-    {
-      Vector3f negative = maxPoint;
-      if (normal.x() >= 0)
-        negative.x() = minPoint.x();
-      if (normal.y() >= 0)
-        negative.y() = minPoint.y();
-      if (normal.z() >= 0)
-        negative.z() = minPoint.z();
-
-      return negative;
-    }
-  };
-  // bool inFrustum(Vector3f p);
 
 protected:
   /** Loads a triangular mesh in the OFF format */
@@ -141,16 +99,6 @@ protected:
   std::vector<Vertex> initVertices;
   // std::vector<Vector3i> initFaces;
   std::vector<Plane> m_Planes;
-
-  enum ePlanes
-  {
-    LEFT,
-    RIGHT,
-    TOP,
-    BOTTOM,
-    FAR,
-    NEAR
-  };
 
   unsigned int mVertexArrayId;
   unsigned int mVertexBufferId; ///< the id of the BufferObject storing the
