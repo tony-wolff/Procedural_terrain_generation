@@ -63,7 +63,12 @@ target_include_directories(planet_generation PUBLIC
 
 target_include_directories(planet_generation PUBLIC 
                             /usr/local/include/noise)
-target_link_libraries(planet_generation PUBLIC noise glfw ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS} ${ImageMagick_LIBRARIES} glbinding)
+
+if (APPLE)
+    target_link_libraries(planet_generation PUBLIC /usr/local/lib/libnoise.a /usr/local/lib/libcppunit.a glfw ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS} ${ImageMagick_LIBRARIES} glbinding)
+else()
+    target_link_libraries(planet_generation PUBLIC noise glfw ${GLFW_LIBRARIES} ${CMAKE_DL_LIBS} ${ImageMagick_LIBRARIES} glbinding)
+endif()
 
 function(IndicateExternalFile _target)
     foreach(_file IN ITEMS ${ARGN})
@@ -76,3 +81,11 @@ endfunction()
 
 file(GLOB SHADERS "../data/shaders/*.vert" "../data/shaders/*.frag")
 IndicateExternalFile("planet_generation" ${SHADERS})
+
+# Tests
+add_executable(test test/TestQuadTree.cpp)
+if (APPLE)
+    target_link_libraries(test PUBLIC /usr/local/lib/libcppunit.a)
+else()
+    target_link_libraries(test -lcppunit)
+endif()
