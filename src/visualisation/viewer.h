@@ -8,27 +8,29 @@
 // #include "mesh.h"
 #include "terrain.h"
 
+#include "ViewerAbstract.h"
+
 #include <iostream>
 
-class Viewer{
+class Viewer : public ViewerAbstract {
 public:
     //! Constructor
     Viewer();
     virtual ~Viewer();
 
     // gl stuff
-    void init(int w, int h);
-    void drawScene();
-    void updateAndDrawScene();
-    void reshape(int w, int h);
-    void loadShaders();
+    void init(int w, int h) override;
+    void drawScene() override;
+    void updateAndDrawScene() override;
+    void reshape(int w, int h) override;
+    void loadShaders() override;
 
     // events
-    void mousePressed(GLFWwindow* window, int button, int action);
-    void mouseMoved(int x, int y);
-    void mouseScroll(double x, double y);
-    void keyPressed(int key, int action, int mods);
-    void charPressed(int key);
+    void mousePressed(int button, int action) override;
+    void mouseMoved(int x, int y) override;
+    void mouseScroll(double x, double y) override;
+    void keyPressed(int key, int action, int mods) override;
+    void charPressed(int key) override;
 
 private:
     int _winWidth, _winHeight;

@@ -3,7 +3,7 @@
 #include <iostream>
 #include "heightMapGen.h"
 
-Viewer* v;
+ViewerAbstract* v;
 
 int WIDTH = 600;
 int HEIGHT = 600;
@@ -31,7 +31,7 @@ static void key_callback(GLFWwindow* window, int key, int /*scancode*/, int acti
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int /*mods*/)
 {
-    v->mousePressed(window, button, action);
+    v->mousePressed(button, action);
 }
 
 void cursorPos_callback(GLFWwindow* /*window*/, double x, double y)

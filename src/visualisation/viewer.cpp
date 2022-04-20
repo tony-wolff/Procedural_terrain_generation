@@ -113,7 +113,7 @@ void Viewer::loadShaders()
    You can change in this function the way the user
    interact with the application.
  */
-void Viewer::mousePressed(GLFWwindow * /*window*/, int /*button*/, int action)
+void Viewer::mousePressed(int /*button*/, int action)
 {
   if (action == GLFW_PRESS)
   {
