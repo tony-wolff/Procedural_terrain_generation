@@ -51,10 +51,12 @@ int Terrain::loadHeightmap(const std::string& filename)
     int vx, vz;
     int indexVertices = 0;
     mVertices.resize(qtTest->nodearray.size() * 8);
-
+    float height_scale=70;
+    float scale = 10;
+    float adjFromOrigin = (scale*qtTest->nodearray.at(0).width)/2.0;
     for (int i = 0; i < qtTest->nodearray.size(); i++)
     {
-      if (qtTest->nodearray.at(i).level <= qtTest->getMaxLevel()-2)
+      if (qtTest->nodearray.at(i).level == 5)
       {
         //std::cout << "Begin node draw" << std::endl;
         for (int x = 0; x < 2; x++)
@@ -68,7 +70,7 @@ int Terrain::loadHeightmap(const std::string& filename)
             vz = qtTest->nodearray.at(i).vertices[x][z].z;
             
             //std::cout << vx << " -- " << vz << endl;
-            mVertices[indexVertices] = Vertex(Vector3f(vx* heightmap_x, (heightmapMat(vx, vz) * 255) * heightmap_y, vz* heightmap_z));
+            mVertices[indexVertices] = Vertex(Vector3f(vx* scale - adjFromOrigin, (heightmapMat(vx, vz)) * scale*height_scale, vz* scale - adjFromOrigin));
             mVertices[indexVertices].texcoord = Vector2f(vx* heightmap_tex_x, vz* heightmap_tex_z);
             mVertices[indexVertices].visible = true;
 
@@ -230,7 +232,7 @@ void Terrain::draw(const Shader &shd)
   }
 
   // send the geometry
-  glDrawElements(GL_TRIANGLES, 3*mFaces.size(), GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLE_STRIP, 3*mFaces.size(), GL_UNSIGNED_INT, 0);
 
   // at this point the mesh has been drawn and rasterized into the framebuffer!
   if(vertex_loc>=0) glDisableVertexAttribArray(vertex_loc);
