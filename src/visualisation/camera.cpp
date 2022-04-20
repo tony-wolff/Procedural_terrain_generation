@@ -2,8 +2,6 @@
 #include "camera.h"
 #include "opengl.h"
 
-
-
 using namespace Eigen;
 
 Camera::Camera()
@@ -90,16 +88,14 @@ void Camera::moveLeft(float x)
   mViewMatrix = Affine3f(Translation3f(Vector3f(x * t.norm(), 0, 0))) * mViewMatrix;
 }
 
-
-
 void Camera::lookUp(float x)
 {
-  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, Vector3f::UnitX())) * mViewMatrix;
+  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitX())) * mViewMatrix;
 }
 
 void Camera::lookDown(float x)
 {
-  mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitX())) * mViewMatrix;
+  mViewMatrix = Affine3f(AngleAxisf(x * M_PI, Vector3f::UnitX())) * mViewMatrix;
 }
 
 void Camera::lookRight(float x)
@@ -111,10 +107,6 @@ void Camera::lookLeft(float x)
 {
   mViewMatrix = Affine3f(AngleAxisf(-x * M_PI, Vector3f::UnitY())) * mViewMatrix;
 }
-
-
-
-
 
 Camera::~Camera()
 {
