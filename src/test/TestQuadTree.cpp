@@ -11,6 +11,7 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/XmlOutputter.h>
 
+
 #include "../visualisation/QuadTree.h"
 
 using namespace CppUnit;
@@ -18,6 +19,7 @@ using namespace CppUnit;
 class TestQuadTree : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(TestQuadTree);
+    CPPUNIT_TEST(testChildrenInBox);
     CPPUNIT_TEST_SUITE_END();
     public:
         void setUp(void);
@@ -25,6 +27,10 @@ class TestQuadTree : public CppUnit::TestFixture
     private:
         TerrainGeneration* qt;
         std::vector<TerrainGeneration::QTNode> nodearray;
+
+
+    protected:
+        void testChildrenInBox(void);
 };
 
 void TestQuadTree::setUp(void) {
@@ -38,8 +44,47 @@ void TestQuadTree::tearDown(void) {
     std::vector<TerrainGeneration::QTNode>().swap(nodearray);
 }
 
+bool isInBox(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode children) {
+    if (children.minX >= parent.minX && children.maxX <= parent.maxX 
+        && children.minZ >= parent.minZ && children.maxZ <= parent.maxZ)
+            return true;
+    
+    return false;
+}
+
+void TestQuadTree::testChildrenInBox(void) {
+    for (unsigned long index = 0; index < nodearray.size(); index++) {
+        TerrainGeneration::QTNode parentNode = nodearray.at(index);
+        
+        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[0])));
+        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[1])));
+        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[2])));
+        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[3])));
+    }
+        
+}
+
 CPPUNIT_TEST_SUITE_REGISTRATION( TestQuadTree );
 
 int main(int argc, char* argv[]) {
-    return 0;
+    CPPUNIT_NS::TestResult testresult;
+
+    CPPUNIT_NS::TestResultCollector collectedresults;
+    testresult.addListener (&collectedresults);
+
+    CPPUNIT_NS::BriefTestProgressListener progress;
+    testresult.addListener (&progress);
+
+    CPPUNIT_NS::TestRunner testrunner;
+    testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
+    testrunner.run(testresult);
+
+    CPPUNIT_NS::CompilerOutputter compileroutputter(&collectedresults, std::cerr);
+    compileroutputter.write ();
+
+    ofstream xmlFileOut("testResult.xml");
+    XmlOutputter xmlOut(&collectedresults, xmlFileOut);
+    xmlOut.write();
+
+    return collectedresults.wasSuccessful() ? 0 : 1;
 }
