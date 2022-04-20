@@ -19,23 +19,25 @@ endif()
 
 set(SRC_FILES
     visualisation/main.cpp
-    visualisation/viewer.cpp
-    visualisation/viewer.h
-    visualisation/shader.cpp
-    visualisation/shader.h
+    visualisation/ViewerOpenGL.cpp
+    visualisation/ViewerOpenGL.h
+    visualisation/Shader.cpp
+    visualisation/Shader.h
     visualisation/opengl.h
-    visualisation/camera.h
-    visualisation/camera.cpp
-    visualisation/terrain.h
-    visualisation/terrain.cpp
-    visualisation/trackball.cpp
-    visualisation/trackball.h
-    visualisation/quadtree.cpp
-    visualisation/quadtree.h
-    visualisation/maploader.cpp
-    visualisation/maploader.h
-    visualisation/heightMapGen.cpp
-    visualisation/heightMapGen.h
+    visualisation/Camera.h
+    visualisation/Camera.cpp
+    visualisation/Terrain.h
+    visualisation/Terrain.cpp
+    visualisation/TrackBall.cpp
+    visualisation/TrackBall.h
+    visualisation/QuadTree.cpp
+    visualisation/QuadTree.h
+    visualisation/MapLoader.cpp
+    visualisation/MapLoader.h
+    visualisation/HeightMapGen.cpp
+    visualisation/HeightMapGen.h
+    visualisation/TerrainGeneration.h
+    visualisation/ViewerAbstract.h
     ext/noiseutils/noiseutils.cpp
     )
 

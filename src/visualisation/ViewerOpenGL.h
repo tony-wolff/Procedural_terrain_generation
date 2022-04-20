@@ -2,11 +2,11 @@
 #define VIEWER_H
 
 #include "opengl.h"
-#include "shader.h"
-#include "camera.h"
-#include "trackball.h"
-// #include "mesh.h"
-#include "terrain.h"
+#include "Shader.h"
+#include "Camera.h"
+#include "TrackBall.h"
+// #include "Mesh.h"
+#include "Terrain.h"
 
 #include "ViewerAbstract.h"
 
@@ -45,14 +45,14 @@ private:
     bool _wireframe;
 
 
-    // Mouse parameters for the trackball
+    // Mouse parameters for the TrackBall
     enum TrackMode
     {
       TM_NO_TRACK=0, TM_ROTATE_AROUND, TM_ZOOM,
       TM_LOCAL_ROTATE, TM_FLY_Z, TM_FLY_PAN
     };
     TrackMode _trackingMode = TM_NO_TRACK;
-    Trackball _trackball;
+    TrackBall _trackball;
     Eigen::Vector2i _lastMousePos;
 };
 

@@ -1,7 +1,7 @@
 
-#include "terrain.h"
-#include "shader.h"
-#include "maploader.h"
+#include "Terrain.h"
+#include "Shader.h"
+#include "MapLoader.h"
 #include <Eigen/Geometry>
 #include <iostream>
 #include <fstream>
@@ -180,14 +180,14 @@ Terrain::~Terrain()
 
 void Terrain::draw(const Shader &shd)
 {
-  // Activate the VBO of the current mesh:
+  // Activate the VBO of the current Mesh:
   glBindVertexArray(mVertexArrayId);
   glBindBuffer(GL_ARRAY_BUFFER, mVertexBufferId);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBufferId);
   
   // Specify vertex data
 
-  // 1 - get id of the attribute "vtx_position" as declared as "in vec3 vtx_position" in the vertex shader
+  // 1 - get id of the attribute "vtx_position" as declared as "in vec3 vtx_position" in the vertex Shader
   int vertex_loc = shd.getAttribLocation("vtx_position");
   if(vertex_loc>=0)
   {
@@ -227,7 +227,7 @@ void Terrain::draw(const Shader &shd)
   // send the geometry
   glDrawElements(GL_TRIANGLES, 3*mFaces.size(), GL_UNSIGNED_INT, 0);
 
-  // at this point the mesh has been drawn and rasterized into the framebuffer!
+  // at this point the Mesh has been drawn and rasterized into the framebuffer!
   if(vertex_loc>=0) glDisableVertexAttribArray(vertex_loc);
   if(normal_loc>=0) glDisableVertexAttribArray(normal_loc);
   if(color_loc>=0)  glDisableVertexAttribArray(color_loc);

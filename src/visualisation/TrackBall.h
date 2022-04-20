@@ -6,11 +6,11 @@
 
 class Camera;
 
-class Trackball
+class TrackBall
 {
   public:
 
-    Trackball() : mpCamera(0) {}
+    TrackBall() : mpCamera(0) {}
     
     void start() { mLastPointOk = false; }
 

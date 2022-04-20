@@ -5,7 +5,7 @@
 #include <noiseutils.h>
 #include <string>
 
-class heightMapGen;
+class HeightMapGen;
 
 using namespace noise;
 
@@ -16,7 +16,7 @@ struct bounding_square
     double lowerZ;
     double upperZ;
 };
-class heightMapGen {
+class HeightMapGen {
 
 public:
     void SetSize(int width, int height);

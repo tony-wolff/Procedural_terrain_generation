@@ -1,4 +1,4 @@
-#include "quadtree.h"
+#include "QuadTree.h"
 #include "math.h"
 #include <iostream>
 #include <fstream>

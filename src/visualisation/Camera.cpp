@@ -1,5 +1,4 @@
-
-#include "camera.h"
+#include "Camera.h"
 #include "opengl.h"
 
 

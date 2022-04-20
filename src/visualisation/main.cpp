@@ -1,7 +1,7 @@
 #include "opengl.h"
 #include "ViewerOpenGL.h"
 #include <iostream>
-#include "heightMapGen.h"
+#include "HeightMapGen.h"
 
 ViewerAbstract* v;
 
