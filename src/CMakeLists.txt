@@ -83,9 +83,15 @@ file(GLOB SHADERS "../data/shaders/*.vert" "../data/shaders/*.frag")
 IndicateExternalFile("planet_generation" ${SHADERS})
 
 # Tests
-add_executable(test test/TestQuadTree.cpp)
+set(SRC_FILES
+    visualisation/QuadTree.h
+    visualisation/QuadTree.cpp
+    test/TestQuadTree.cpp
+)
+
+add_executable(test ${SRC_FILES})
 if (APPLE)
-    target_link_libraries(test PUBLIC /usr/local/lib/libcppunit.a)
+    target_link_libraries(test PUBLIC /usr/local/lib/libcppunit.a glbinding)
 else()
-    target_link_libraries(test -lcppunit)
+    target_link_libraries(test -lcppunit glbinding)
 endif()
