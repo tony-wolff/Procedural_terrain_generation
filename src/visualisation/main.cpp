@@ -1,5 +1,5 @@
 #include "opengl.h"
-#include "viewer.h"
+#include "ViewerOpenGL.h"
 #include <iostream>
 #include "heightMapGen.h"
 
@@ -97,7 +97,7 @@ int main (int /*argc*/, char **/*argv*/)
     GLFWwindow* window = initGLFW();
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
-    v = new Viewer();
+    v = new ViewerOpenGL();
     v->init(w,h);
 
     double t0 = glfwGetTime();

@@ -1,14 +1,14 @@
-#include "viewer.h"
+#include "ViewerOpenGL.h"
 #include "camera.h"
 
 using namespace Eigen;
 
-Viewer::Viewer()
+ViewerOpenGL::ViewerOpenGL()
     : _winWidth(0), _winHeight(0), _theta(0), _rotate(false), _wireframe(false)
 {
 }
 
-Viewer::~Viewer()
+ViewerOpenGL::~ViewerOpenGL()
 {
 }
 
@@ -16,7 +16,7 @@ Viewer::~Viewer()
 // GL stuff
 
 // initialize OpenGL context
-void Viewer::init(int w, int h)
+void ViewerOpenGL::init(int w, int h)
 {
 
   // Background color
@@ -40,7 +40,7 @@ void Viewer::init(int w, int h)
   glEnable(GL_DEPTH_TEST);
 }
 
-void Viewer::reshape(int w, int h)
+void ViewerOpenGL::reshape(int w, int h)
 {
   _winWidth = w;
   _winHeight = h;
@@ -50,7 +50,7 @@ void Viewer::reshape(int w, int h)
 /*!
    callback to draw graphic primitives
  */
-void Viewer::drawScene()
+void ViewerOpenGL::drawScene()
 {
   // configure the rendering target size (viewport)
   glViewport(0, 0, _winWidth, _winHeight);
@@ -90,7 +90,7 @@ void Viewer::drawScene()
   _shader.deactivate();
 }
 
-void Viewer::updateAndDrawScene()
+void ViewerOpenGL::updateAndDrawScene()
 {
  // _terrain.updateTerrain(_cam.getPosition(), _cam.getFar());
   if (_rotate)
@@ -98,7 +98,7 @@ void Viewer::updateAndDrawScene()
   drawScene();
 }
 
-void Viewer::loadShaders()
+void ViewerOpenGL::loadShaders()
 {
   // Here we can load as many shaders as we want
   _shader.loadFromFiles(DATA_DIR "/shaders/simple.vert", DATA_DIR "/shaders/simple.frag");
@@ -113,7 +113,7 @@ void Viewer::loadShaders()
    You can change in this function the way the user
    interact with the application.
  */
-void Viewer::mousePressed(int /*button*/, int action)
+void ViewerOpenGL::mousePressed(int /*button*/, int action)
 {
   if (action == GLFW_PRESS)
   {
@@ -132,7 +132,7 @@ void Viewer::mousePressed(int /*button*/, int action)
    You can change in this function the way the user
    interact with the application.
  */
-void Viewer::mouseMoved(int x, int y)
+void ViewerOpenGL::mouseMoved(int x, int y)
 {
   if (_trackingMode == TM_ROTATE_AROUND)
   {
@@ -142,7 +142,7 @@ void Viewer::mouseMoved(int x, int y)
   _lastMousePos = Vector2i(x, y);
 }
 
-void Viewer::mouseScroll(double /*x*/, double y)
+void ViewerOpenGL::mouseScroll(double /*x*/, double y)
 {
   _cam.zoom(-0.1 * y);
 }
@@ -152,7 +152,7 @@ void Viewer::mouseScroll(double /*x*/, double y)
    You can change in this function the way the user
    interact with the application.
  */
-void Viewer::keyPressed(int key, int action, int /*mods*/)
+void ViewerOpenGL::keyPressed(int key, int action, int /*mods*/)
 {
   if (action == GLFW_PRESS)
   {
@@ -219,6 +219,6 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
   }
 }
 
-void Viewer::charPressed(int /*key*/)
+void ViewerOpenGL::charPressed(int /*key*/)
 {
 }

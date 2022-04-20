@@ -12,11 +12,11 @@
 
 #include <iostream>
 
-class Viewer : public ViewerAbstract {
+class ViewerOpenGL : public ViewerAbstract {
 public:
     //! Constructor
-    Viewer();
-    virtual ~Viewer();
+    ViewerOpenGL();
+    virtual ~ViewerOpenGL();
 
     // gl stuff
     void init(int w, int h) override;
