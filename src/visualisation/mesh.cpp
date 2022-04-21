@@ -191,56 +191,26 @@ void Mesh::createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, 
     }
   }
 
-  /*for (auto vertice : mVertices)
+  for (unsigned int i = 0; i < raw_width - 1; ++i)
   {
-    if ((nn.n).dot(vertice.position - na) < 0 ||
-        (nf.n).dot(vertice.position - fa) < 0 ||
-        (nl.n).dot(vertice.position - fa) < 0 ||
-        (nr.n).dot(vertice.position - nb) < 0 ||
-        (nt.n).dot(vertice.position - fa) < 0 ||
-        (nbo.n).dot(vertice.position - nc) < 0)
+    for (unsigned int j = 0; j < raw_height - 1; ++j)
     {
-      vertice.visible = false;
-    }
-    else
-    {
-      vertice.visible = true;
-    }
-  }*/
-  /* Camera cam;
-   int i = 0;
-   for (auto plane : cam.m_Planes)
-   {
+      unsigned int offset = (i * raw_width) + j;
 
-     if ((plane.n).dot(mVertices[i].position - plane.d) < 0)
-     {
-       mVertices[i].visible = false;
-     }
-     else
-     {
-       mVertices[i].visible = true;
-     }
-     i++;
-   }*/
-
-  for (unsigned int x = 0; x < raw_width - 1; ++x)
-  {
-    for (unsigned int z = 0; z < raw_height - 1; ++z)
-    {
-      unsigned int a = x * raw_width + z;
-      unsigned int b = (x + 1) * raw_width + z;
-      unsigned int c = (x + 1) * raw_width + (z + 1);
-      unsigned int d = x * raw_width + (z + 1);
-
-      if (mVertices[a].visible && mVertices[b].visible && mVertices[c].visible && mVertices[d].visible)
+      if (mVertices[offset].visible == true)
       {
+        unsigned int a = i * raw_width + j;
+        unsigned int b = (i + 1) * raw_width + j;
+        unsigned int c = (i + 1) * raw_width + (j + 1);
+        unsigned int d = i * raw_width + (j + 1);
+
         mFaces.push_back(Vector3i(c, b, a));
         mFaces.push_back(Vector3i(a, d, c));
       }
-      mVertices[a].visible = false;
-      mVertices[b].visible = false;
-      mVertices[c].visible = false;
-      mVertices[d].visible = false;
+      else
+      {
+        break;
+      }
     }
   }
 
