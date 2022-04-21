@@ -25,9 +25,8 @@ class TestQuadTree : public CppUnit::TestFixture
         void setUp(void);
         void tearDown(void);
     private:
-        TerrainGeneration* qt;
+        QuadTree* qt;
         std::vector<TerrainGeneration::QTNode> nodearray;
-
 
     protected:
         void testChildrenInBox(void);
@@ -36,7 +35,7 @@ class TestQuadTree : public CppUnit::TestFixture
 void TestQuadTree::setUp(void) {
     qt = new QuadTree();
     qt->compile(0, 512, 0, 512, 512, 512);
-    nodearray = qt->getResult(6);
+    nodearray = qt->nodearray;
 }
 
 void TestQuadTree::tearDown(void) {
