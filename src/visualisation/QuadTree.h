@@ -12,7 +12,6 @@ class QuadTree : public TerrainGeneration
   private:
     unsigned int width;
     unsigned int height;
-    unsigned int nodeIndex = 0;
     int maxLevel;
 
     void createNode(QTNode parent);

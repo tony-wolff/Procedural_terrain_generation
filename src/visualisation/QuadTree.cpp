@@ -14,6 +14,7 @@ QuadTree::~QuadTree()
 
 void QuadTree::createNode(QTNode currentNode)
 {
+    static int nodeIndex;
     // A définir
     maxLevel = 8;
     float threshold = width * pow(0.5, maxLevel);
