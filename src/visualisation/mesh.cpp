@@ -207,10 +207,6 @@ void Mesh::createFrustum(float m_fovY, float m_near, float m_far, int mVpWidth, 
         mFaces.push_back(Vector3i(c, b, a));
         mFaces.push_back(Vector3i(a, d, c));
       }
-      else
-      {
-        break;
-      }
     }
   }
 

@@ -223,11 +223,10 @@ void Viewer::keyPressed(int key, int action, int /*mods*/)
     {
       _cam.moveRight(0.01);
       //_mesh.updateVBO();
-      /*_mesh.Rmem(_cam.getFovY(), _cam.getNear(), _cam.getFar(), _cam.vpWidth(), _cam.vpHeight(),
-                 _cam.getPosition(), _cam.getForward(), _cam.getUp(), _cam.getRight(), DATA_DIR "/textures/Terrain.png");*/
     }
     else if (key == GLFW_KEY_C)
     {
+      _mesh.updateVBO();
       _mesh.createFrustum(_cam.getFovY(), _cam.getNear(), _cam.getFar(), _cam.vpWidth(), _cam.vpHeight(),
                           _cam.getPosition(), _cam.getForward(), _cam.getUp(), _cam.getRight(), DATA_DIR "/textures/Terrain.png");
     }
