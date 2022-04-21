@@ -16,7 +16,7 @@ class TerrainGeneration {
             float minX, maxX, minZ, maxZ;
             
             pos vertices[3][3];
-            unsigned int childrenIndex[4] = {};
+            unsigned int* childrenIndex = new unsigned int[4];
 
             bool visible;
             bool leaf;

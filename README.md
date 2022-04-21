@@ -1,8 +1,8 @@
 # Pdp-Procedural_Planet_Generation
 
 ## Required libraries
-ImageMagick 7 : https://github.com/ImageMagick/ImageMagick
-Libnoise : https://github.com/qknight/libnoise
+ImageMagick 7+ : https://github.com/ImageMagick/ImageMagick
+CppUnit : https://sourceforge.net/projects/cppunit/
 
 ## How to build
 
@@ -19,3 +19,4 @@ A few warnings could be raised depending on your OS, however the executable shou
 
 - [x] Mac OS X 10.15
 - [x] Windows 10, WSL2
+- [x] Debian 9
