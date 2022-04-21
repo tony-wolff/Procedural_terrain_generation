@@ -20,6 +20,7 @@ class TestQuadTree : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(TestQuadTree);
     CPPUNIT_TEST(testChildrenInBox);
+    CPPUNIT_TEST(testChildrenSize);
     CPPUNIT_TEST_SUITE_END();
     public:
         void setUp(void);
@@ -30,7 +31,23 @@ class TestQuadTree : public CppUnit::TestFixture
 
     protected:
         void testChildrenInBox(void);
+        void testChildrenSize(void);
+        void recurseThroughChild(TerrainGeneration::QTNode parent, bool (* fun)(TerrainGeneration::QTNode, TerrainGeneration::QTNode));
 };
+
+typedef bool (*callback_func)(TerrainGeneration::QTNode, TerrainGeneration::QTNode);
+
+bool isInBox(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode children) {
+    if (children.minX >= parent.minX && children.maxX <= parent.maxX 
+        && children.minZ >= parent.minZ && children.maxZ <= parent.maxZ)
+            return true;
+    
+    return false;
+}
+
+bool isRightSize(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode children) {
+    return children.width == parent.width / 2 && children.height == parent.height / 2;
+}
 
 void TestQuadTree::setUp(void) {
     qt = new QuadTree();
@@ -43,41 +60,31 @@ void TestQuadTree::tearDown(void) {
     std::vector<TerrainGeneration::QTNode>().swap(nodearray);
 }
 
-bool isInBox(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode children) {
-    if (children.minX >= parent.minX && children.maxX <= parent.maxX 
-        && children.minZ >= parent.minZ && children.maxZ <= parent.maxZ)
-            return true;
-    
-    return false;
+void TestQuadTree::recurseThroughChild(TerrainGeneration::QTNode parent, callback_func fun) {
+    CPPUNIT_ASSERT(fun(parent, nodearray.at(parent.childrenIndex[0])));
+    recurseThroughChild(nodearray.at(parent.childrenIndex[0]), fun);
+
+    CPPUNIT_ASSERT(fun(parent, nodearray.at(parent.childrenIndex[1])));
+    recurseThroughChild(nodearray.at(parent.childrenIndex[1]), fun);
+
+    CPPUNIT_ASSERT(fun(parent, nodearray.at(parent.childrenIndex[2])));
+    recurseThroughChild(nodearray.at(parent.childrenIndex[2]), fun);
+
+    CPPUNIT_ASSERT(fun(parent, nodearray.at(parent.childrenIndex[3])));
+    recurseThroughChild(nodearray.at(parent.childrenIndex[3]), fun);
 }
 
 void TestQuadTree::testChildrenInBox(void) {
-    for (unsigned long index = 0; index < nodearray.size(); index++) {
-        TerrainGeneration::QTNode parentNode = nodearray.at(index);
-        
-        if (parentNode.level < qt->getMaxLevel()) {
-            std::cout << "level " << parentNode.level << std::endl;
-            std::cout << "index " << parentNode.childrenIndex[0] << std::endl;
-            std::cout << "parent " << parentNode.minX << std::endl;
-            std::cout << "parent " << parentNode.maxX << std::endl;
-            std::cout << "parent " << parentNode.minZ << std::endl;
-            std::cout << "parent " << parentNode.maxZ << std::endl;
-            std::cout << "childLevel " << nodearray.at(parentNode.childrenIndex[3]).minX << std::endl;
-            std::cout << "childLevel " << nodearray.at(parentNode.childrenIndex[3]).maxX << std::endl;
-            std::cout << "childLevel " << nodearray.at(parentNode.childrenIndex[3]).minZ << std::endl;
-            std::cout << "childLevel " << nodearray.at(parentNode.childrenIndex[3]).maxZ << std::endl;
-            CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[0])));
-            CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[1])));
-            CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[2])));
-            CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[3])));
-        }
-    }
-        
+    recurseThroughChild(nodearray.at(0), &isInBox);
+}
+
+void TestQuadTree::testChildrenSize(void) {
+    recurseThroughChild(nodearray.at(0), &isRightSize);
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( TestQuadTree );
 
-int main(int argc, char* argv[]) {
+int main() {
     CPPUNIT_NS::TestResult testresult;
 
     CPPUNIT_NS::TestResultCollector collectedresults;
