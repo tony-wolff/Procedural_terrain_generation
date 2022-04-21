@@ -83,15 +83,32 @@ file(GLOB SHADERS "../data/shaders/*.vert" "../data/shaders/*.frag")
 IndicateExternalFile("planet_generation" ${SHADERS})
 
 # Tests
-set(SRC_FILES
+set(SRC_FILES_test1
     visualisation/QuadTree.h
     visualisation/QuadTree.cpp
     test/TestQuadTree.cpp
 )
 
-add_executable(test ${SRC_FILES})
+set(SRC_FILES_test2
+    visualisation/HeightMapGen.h
+    visualisation/HeightMapGen.cpp
+    test/TestHeightMapGen.cpp
+    ext/noiseutils/noiseutils.cpp
+)
+
+add_executable(test_quadtree ${SRC_FILES_test1})
 if (APPLE)
-    target_link_libraries(test PUBLIC /usr/local/lib/libcppunit.a glbinding)
+    target_link_libraries(test_quadtree PUBLIC /usr/local/lib/libcppunit.a glbinding)
 else()
-    target_link_libraries(test -lcppunit glbinding)
+    target_link_libraries(test_quadtree -lcppunit glbinding)
 endif()
+
+add_executable(test_heightmap ${SRC_FILES_test2})
+if (APPLE)
+    target_link_libraries(test_heightmap PUBLIC /usr/local/lib/libnoise.a /usr/local/lib/libcppunit.a glbinding)
+else()
+    target_link_libraries(test_heightmap noise -lcppunit glbinding)
+endif()
+    
+add_test(NAME quadtree COMMAND test_quadtree)
+add_test(NAME HeightMapGen COMMAND test_heightmap)

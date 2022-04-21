@@ -42,6 +42,12 @@ void HeightMapGen::Save(std::string output_file)
     writer.WriteDestFile();
 }
 
+/**
+ * Avant de générer quoi que ce soit, il faut indiquer les limites de la boite englobante
+ * Cette boite sert à libnoise pour générer des valeurs de bruits cohérents contenu à l'intérieur de cette boite
+ * Ces valeurs sont uniformément espacées dans le rectangle.
+ * Cette boite sert aussi pour le tiling, permet de continuer la heightmap de tous les côtés.
+ * */
 void HeightMapGen::SetBoundingSquare(double lowerX, double upperX, double lowerZ, double upperZ)
 {
     bs.lowerX = lowerX;
@@ -116,4 +122,9 @@ void HeightMapGen::GenerateRandomHeightMap(int width, int height)
     builder_plane.SetBounds(bs.lowerX, bs.upperX, bs.lowerZ, bs.upperZ);
     builder_plane.Build();
     RenderProcessing();
+}
+
+utils::NoiseMapBuilderPlane HeightMapGen::GetBuilderPlane(void)
+{
+    return this->builder_plane;
 }

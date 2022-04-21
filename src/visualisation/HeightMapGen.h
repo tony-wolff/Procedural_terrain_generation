@@ -20,8 +20,6 @@ class HeightMapGen {
 
 public:
     void SetSize(int width, int height);
-    void SetPlanarBuilder();
-    void SetSphericalBuilder();
     void Save(std::string output_file);
     void GenerateRandomHeightMap();
     void GeneratePlanarHeightMap(int width, int height);
@@ -31,7 +29,8 @@ public:
     void SetFrequency(double frequency);
     void SetPersistence(double persistence);
     void GenerateRandomHeightMap(int with, int height);
-
+    utils::NoiseMapBuilderPlane GetBuilderPlane(void);
+    
 private:
     module::Perlin pModule;
     utils::NoiseMap heightMap;
