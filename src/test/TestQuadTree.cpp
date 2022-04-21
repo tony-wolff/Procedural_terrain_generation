@@ -55,10 +55,22 @@ void TestQuadTree::testChildrenInBox(void) {
     for (unsigned long index = 0; index < nodearray.size(); index++) {
         TerrainGeneration::QTNode parentNode = nodearray.at(index);
         
-        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[0])));
-        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[1])));
-        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[2])));
-        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[3])));
+        if (parentNode.level < qt->getMaxLevel()) {
+            std::cout << "level " << parentNode.level << std::endl;
+            std::cout << "index " << parentNode.childrenIndex[0] << std::endl;
+            std::cout << "parent " << parentNode.minX << std::endl;
+            std::cout << "parent " << parentNode.maxX << std::endl;
+            std::cout << "parent " << parentNode.minZ << std::endl;
+            std::cout << "parent " << parentNode.maxZ << std::endl;
+            std::cout << "childLevel " << nodearray.at(parentNode.childrenIndex[3]).minX << std::endl;
+            std::cout << "childLevel " << nodearray.at(parentNode.childrenIndex[3]).maxX << std::endl;
+            std::cout << "childLevel " << nodearray.at(parentNode.childrenIndex[3]).minZ << std::endl;
+            std::cout << "childLevel " << nodearray.at(parentNode.childrenIndex[3]).maxZ << std::endl;
+            CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[0])));
+            CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[1])));
+            CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[2])));
+            CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[3])));
+        }
     }
         
 }
