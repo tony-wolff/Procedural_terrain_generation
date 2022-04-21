@@ -20,8 +20,7 @@ build:
   # before_script:
   #   - apt update && apt -y install make autoconf
   script:
-    - mkdir build & cd build
-    - cmake ../src & make -j6
+    - cmake src & make -j6
   artifacts:
     paths:
       - planet_generation
