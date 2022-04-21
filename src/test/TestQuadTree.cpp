@@ -35,7 +35,21 @@ class TestQuadTree : public CppUnit::TestFixture
         void recurseThroughChild(TerrainGeneration::QTNode parent, bool (* fun)(TerrainGeneration::QTNode, TerrainGeneration::QTNode));
 };
 
-typedef bool (*callback_func)(TerrainGeneration::QTNode, TerrainGeneration::QTNode);
+void TestQuadTree::setUp(void) {
+    qt = new QuadTree();
+    qt->compile(0, 512, 0, 512, 512, 512);
+    nodearray = qt->nodearray;
+}
+
+void TestQuadTree::tearDown(void) {
+    // Clear vector
+    std::vector<TerrainGeneration::QTNode>().swap(nodearray);
+}
+
+/*
+*   Predicate function, 1st parameter is the parent, 2nd is the child
+*/
+typedef bool (*test_function)(TerrainGeneration::QTNode, TerrainGeneration::QTNode);
 
 bool isInBox(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode children) {
     if (children.minX >= parent.minX && children.maxX <= parent.maxX 
@@ -49,29 +63,21 @@ bool isRightSize(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode chi
     return children.width == parent.width / 2 && children.height == parent.height / 2;
 }
 
-void TestQuadTree::setUp(void) {
-    qt = new QuadTree();
-    qt->compile(0, 512, 0, 512, 512, 512);
-    nodearray = qt->nodearray;
-}
+/*
+*   Check if all the nodes in the QuadTree respects the predicate pred
+*/
+void TestQuadTree::recurseThroughChild(TerrainGeneration::QTNode parent, test_function pred) {
+    CPPUNIT_ASSERT(pred(parent, nodearray.at(parent.childrenIndex[0])));
+    recurseThroughChild(nodearray.at(parent.childrenIndex[0]), pred);
 
-void TestQuadTree::tearDown(void) {
-    // Clear vector
-    std::vector<TerrainGeneration::QTNode>().swap(nodearray);
-}
+    CPPUNIT_ASSERT(pred(parent, nodearray.at(parent.childrenIndex[1])));
+    recurseThroughChild(nodearray.at(parent.childrenIndex[1]), pred);
 
-void TestQuadTree::recurseThroughChild(TerrainGeneration::QTNode parent, callback_func fun) {
-    CPPUNIT_ASSERT(fun(parent, nodearray.at(parent.childrenIndex[0])));
-    recurseThroughChild(nodearray.at(parent.childrenIndex[0]), fun);
+    CPPUNIT_ASSERT(pred(parent, nodearray.at(parent.childrenIndex[2])));
+    recurseThroughChild(nodearray.at(parent.childrenIndex[2]), pred);
 
-    CPPUNIT_ASSERT(fun(parent, nodearray.at(parent.childrenIndex[1])));
-    recurseThroughChild(nodearray.at(parent.childrenIndex[1]), fun);
-
-    CPPUNIT_ASSERT(fun(parent, nodearray.at(parent.childrenIndex[2])));
-    recurseThroughChild(nodearray.at(parent.childrenIndex[2]), fun);
-
-    CPPUNIT_ASSERT(fun(parent, nodearray.at(parent.childrenIndex[3])));
-    recurseThroughChild(nodearray.at(parent.childrenIndex[3]), fun);
+    CPPUNIT_ASSERT(pred(parent, nodearray.at(parent.childrenIndex[3])));
+    recurseThroughChild(nodearray.at(parent.childrenIndex[3]), pred);
 }
 
 void TestQuadTree::testChildrenInBox(void) {
