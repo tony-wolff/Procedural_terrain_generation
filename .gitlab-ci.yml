@@ -29,3 +29,9 @@ build:
       # cache:
       #   paths:
       #     - "*.o"
+
+# run tests using the binary built before
+test:
+  stage: test
+  script:
+    - ./runmytests.sh
