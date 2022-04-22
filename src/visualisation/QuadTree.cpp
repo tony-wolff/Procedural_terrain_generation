@@ -22,6 +22,7 @@ void QuadTree::createNode(QTNode currentNode)
     if ((currentNode.height) == threshold) 
     {
         currentNode.leaf = true;
+        nodearray.push_back(currentNode);
         return;
     }
     // Sinon on continue récursivement à créer les enfants
@@ -50,7 +51,6 @@ void QuadTree::createNode(QTNode currentNode)
             }
         }
         nodearray.push_back(currentNode);
-
         QTNode childNode;
 
         childNode.width = currentNode.width / 2;
