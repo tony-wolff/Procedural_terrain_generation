@@ -1,6 +1,7 @@
 #include "HeightMapGen.h"
 #include <iostream>
 #include <random>
+#include <stdexcept>
 
 
 void HeightMapGen::GeneratePlanarHeightMap(int width, int height)
@@ -37,6 +38,11 @@ void HeightMapGen::RenderProcessing()
 
 void HeightMapGen::Save(std::string output_file)
 {
+    if(output_file.substr(output_file.find_last_of(".") + 1) != "bmp")
+    {
+        std::string ext(output_file.substr(output_file.find_last_of(".") + 1));
+        throw std::invalid_argument(ext + " is not bmp");
+    }
     writer.SetSourceImage(image);
     writer.SetDestFilename(DATA_DIR "/textures/" + output_file);
     writer.WriteDestFile();
@@ -88,7 +94,7 @@ void HeightMapGen::SetPersistence(double p)
     pModule.SetPersistence(p);
 }
 
-int randomBetween(int min, int max)
+int HeightMapGen::randomBetween(int min, int max)
 {
     std::random_device seed;
     std::mt19937 rng(seed());
@@ -96,7 +102,7 @@ int randomBetween(int min, int max)
     return uni(rng);
 }
 
-double randomBetween(double min, double max)
+double HeightMapGen::randomBetween(double min, double max)
 {
     std::random_device seed;
     std::mt19937 rng(seed());
@@ -104,14 +110,32 @@ double randomBetween(double min, double max)
     return uni(rng);
 }
 
-
-
-void HeightMapGen::GenerateRandomHeightMap(int width, int height)
+/**
+ * Génère une boite anglobante entre les coordonnées minX, minZ, maxX et maxZ
+ * */
+void HeightMapGen::RandomBoundingSquare(double minX, double maxX, double minZ, double maxZ)
 {
+    if(minX >= maxX || minZ >= maxZ)
+    {
+        throw std::invalid_argument("minX >= maxX or minZ >= maxZ");
+    }
+    MIN_X = minX;
+    MAX_X = maxX;
+    MIN_Z = minZ;
+    MAX_Z = maxZ;
+
     bs.lowerX = randomBetween(MIN_X, MAX_X);
-    bs.upperX = randomBetween((int)bs.lowerX+1, MAX_X);
+    bs.upperX = randomBetween(bs.lowerX+.01f, MAX_X);
     bs.lowerZ = randomBetween(MIN_Z, MAX_Z);
-    bs.upperZ = randomBetween((int)bs.lowerZ+1, MAX_Z);
+    bs.upperZ = randomBetween(bs.lowerZ+.01f, MAX_Z);
+
+}
+
+
+
+void HeightMapGen::GenerateRandomHeightMap(int width, int height, double minX, double maxX, double minZ, double maxZ)
+{
+    RandomBoundingSquare(minX, maxX, minZ, maxZ);
 
     SetOctave(randomBetween(1, 8));
     SetFrequency(randomBetween(1, 16));

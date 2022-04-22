@@ -28,7 +28,10 @@ public:
     void SetOctave(int octave);
     void SetFrequency(double frequency);
     void SetPersistence(double persistence);
-    void GenerateRandomHeightMap(int with, int height);
+    void GenerateRandomHeightMap(int width, int height, double minX, double minZ, double maxX, double maxZ);
+    int randomBetween(int, int);
+    double randomBetween(double, double);
+    void RandomBoundingSquare(double minX, double minZ, double maxX, double maxZ);
     utils::NoiseMapBuilderPlane GetBuilderPlane(void);
     
 private:
@@ -41,10 +44,10 @@ private:
     utils::WriterBMP writer;
     void RenderProcessing();
     bounding_square bs;
-    const int MIN_X=-10;
-    const int MAX_X=10;
-    const int MIN_Z=-10;
-    const int MAX_Z=10;
+    double MIN_X=-10;
+    double MAX_X=10;
+    double MIN_Z=-10;
+    double MAX_Z=10;
 };
 
 #endif

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.2.0)
 project(planet_generation)
+enable_testing()
 
 add_subdirectory(ext/glfw)
 add_subdirectory(ext/glbinding)
@@ -104,11 +105,17 @@ else()
 endif()
 
 add_executable(test_heightmap ${SRC_FILES_test2})
+
+target_include_directories(test_heightmap PUBLIC
+                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                            $<INSTALL_INTERFACE:include>
+                            ${ImageMagick_INCLUDE_DIRS})
+
 if (APPLE)
-    target_link_libraries(test_heightmap PUBLIC /usr/local/lib/libnoise.a /usr/local/lib/libcppunit.a glbinding)
+    target_link_libraries(test_heightmap PUBLIC /usr/local/lib/libnoise.a /usr/local/lib/libcppunit.a glbinding ${ImageMagick_LIBRARIES})
 else()
-    target_link_libraries(test_heightmap noise -lcppunit glbinding)
+    target_link_libraries(test_heightmap noise -lcppunit glbinding ${ImageMagick_LIBRARIES})
 endif()
     
-add_test(NAME quadtree COMMAND test_quadtree)
-add_test(NAME HeightMapGen COMMAND test_heightmap)
+add_test(NAME test_quadtree COMMAND test_quadtree)
+add_test(NAME test_heightmap COMMAND test_heightmap)
