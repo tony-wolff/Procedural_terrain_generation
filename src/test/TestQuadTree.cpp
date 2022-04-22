@@ -20,7 +20,6 @@ class TestQuadTree : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(TestQuadTree);
     CPPUNIT_TEST(testChildrenInBox);
-    CPPUNIT_TEST(testChildrenSize);
     CPPUNIT_TEST_SUITE_END();
     public:
         void setUp(void);
@@ -31,8 +30,6 @@ class TestQuadTree : public CppUnit::TestFixture
 
     protected:
         void testChildrenInBox(void);
-        void testChildrenSize(void);
-        void recurseThroughChild(TerrainGeneration::QTNode parent, bool (* fun)(TerrainGeneration::QTNode, TerrainGeneration::QTNode));
 };
 
 void TestQuadTree::setUp(void) {
@@ -46,11 +43,6 @@ void TestQuadTree::tearDown(void) {
     std::vector<TerrainGeneration::QTNode>().swap(nodearray);
 }
 
-/*
-*   Predicate function, 1st parameter is the parent, 2nd is the child
-*/
-typedef bool (*test_function)(TerrainGeneration::QTNode, TerrainGeneration::QTNode);
-
 bool isInBox(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode children) {
     if (children.minX >= parent.minX && children.maxX <= parent.maxX 
         && children.minZ >= parent.minZ && children.maxZ <= parent.maxZ)
@@ -59,38 +51,21 @@ bool isInBox(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode childre
     return false;
 }
 
-bool isRightSize(TerrainGeneration::QTNode parent, TerrainGeneration::QTNode children) {
-    return children.width == parent.width / 2 && children.height == parent.height / 2;
-}
-
-/*
-*   Check if all the nodes in the QuadTree respects the predicate pred
-*/
-void TestQuadTree::recurseThroughChild(TerrainGeneration::QTNode parent, test_function pred) {
-    CPPUNIT_ASSERT(pred(parent, nodearray.at(parent.childrenIndex[0])));
-    recurseThroughChild(nodearray.at(parent.childrenIndex[0]), pred);
-
-    CPPUNIT_ASSERT(pred(parent, nodearray.at(parent.childrenIndex[1])));
-    recurseThroughChild(nodearray.at(parent.childrenIndex[1]), pred);
-
-    CPPUNIT_ASSERT(pred(parent, nodearray.at(parent.childrenIndex[2])));
-    recurseThroughChild(nodearray.at(parent.childrenIndex[2]), pred);
-
-    CPPUNIT_ASSERT(pred(parent, nodearray.at(parent.childrenIndex[3])));
-    recurseThroughChild(nodearray.at(parent.childrenIndex[3]), pred);
-}
-
 void TestQuadTree::testChildrenInBox(void) {
-    recurseThroughChild(nodearray.at(0), &isInBox);
-}
-
-void TestQuadTree::testChildrenSize(void) {
-    recurseThroughChild(nodearray.at(0), &isRightSize);
+    for (unsigned long index = 0; index < nodearray.size(); index++) {
+        TerrainGeneration::QTNode parentNode = nodearray.at(index);
+        
+        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[0])));
+        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[1])));
+        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[2])));
+        CPPUNIT_ASSERT(isInBox(parentNode, nodearray.at(parentNode.childrenIndex[3])));
+    }
+        
 }
 
 CPPUNIT_TEST_SUITE_REGISTRATION( TestQuadTree );
 
-int main() {
+int main(int argc, char* argv[]) {
     CPPUNIT_NS::TestResult testresult;
 
     CPPUNIT_NS::TestResultCollector collectedresults;
